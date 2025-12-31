@@ -3,29 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Drill Rig Management System</title>
+  <title>Drill Rig Management System - Pilgangoora</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body style="margin:0;padding:0;background:#1e293b;color:white;">
-  <div id="root" style="width:100%;height:100vh;"></div>
+<body style="margin:0;padding:0;background:#1e293b;">
+  <div id="root" style="width:100%;min-height:100vh;"></div>
 
   <script>
     const { useState, useEffect } = window.React;
     const { createRoot } = window.ReactDOM;
 
+    // 37 APPROVED CONSUMABLES
     const defaultConsumables = [
       { id: 1, name: 'Shock Sub: Montrae 4600', category: 'Shock Sub', partNumber: 'Montrae 4600', weight: '442', length: '562', od: '200', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
       { id: 2, name: 'Shock Sub: Montrae 5600', category: 'Shock Sub', partNumber: 'Montrae 5600', weight: '820', length: '650', od: '254', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
       { id: 3, name: 'Shock Sub: Montrae 3600', category: 'Shock Sub', partNumber: 'Montrae 3600', weight: '295', length: '480', od: '178', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 4, name: 'Spindle: API-DIBH Crossover 102', category: 'Spindle', partNumber: 'API-DIBH Crossover 102', weight: '18', length: '305', od: '127', pinSize: '3-1/8 DIBH Pin', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 5, name: 'Spindle: API-DIBH Crossover 114', category: 'Spindle', partNumber: 'API-DIBH Crossover 114', weight: '24', length: '330', od: '140', pinSize: '3-1/8 DIBH Pin', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 6, name: 'Spindle: DIBH-API Crossover 102', category: 'Spindle', partNumber: 'DIBH-API Crossover 102', weight: '18', length: '305', od: '127', pinSize: '3.5 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 7, name: 'Spindle: DIBH-API Crossover 114', category: 'Spindle', partNumber: 'DIBH-API Crossover 114', weight: '24', length: '330', od: '140', pinSize: '3.5 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 8, name: 'Drill Pipe: 102x6.3 - 6m DIBH', category: 'Drill Pipe', partNumber: '102x6.3 - 6m DIBH', weight: '100', length: '6000', od: '102', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 9, name: 'Drill Pipe: 102x8.8 - 6m DIBH', category: 'Drill Pipe', partNumber: '102x8.8 - 6m DIBH', weight: '134', length: '6000', od: '102', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 10, name: 'Drill Pipe: 102x12.7 - 6m API', category: 'Drill Pipe', partNumber: '102x12.7 - 6m API', weight: '174', length: '6000', od: '102', pinSize: '3.5 API IF Pin', boxSize: '3.5 API IF Box', photo: null },
+      { id: 11, name: 'Drill Pipe: 114x8.8 - 6m DIBH', category: 'Drill Pipe', partNumber: '114x8.8 - 6m DIBH', weight: '152', length: '6000', od: '114', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 12, name: 'Collar Pipe: 154mm Collar - 3m', category: 'Collar Pipe', partNumber: '154mm Collar - 3m', weight: '150', length: '3000', od: '154', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 13, name: 'Collar Pipe: 154mm Collar - 6m', category: 'Collar Pipe', partNumber: '154mm Collar - 6m', weight: '300', length: '6000', od: '154', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 14, name: 'Collar Pipe: 190mm Collar - 3m', category: 'Collar Pipe', partNumber: '190mm Collar - 3m', weight: '225', length: '3000', od: '190', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 15, name: 'Collar Pipe: 190mm Collar - 6m', category: 'Collar Pipe', partNumber: '190mm Collar - 6m', weight: '450', length: '6000', od: '190', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 16, name: 'Adapter: DIBH-API Sub 6" Hammer', category: 'Adapter', partNumber: 'DIBH-API Sub 6" Hammer', weight: '22', length: '280', od: '140', pinSize: '3.5 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 17, name: 'Adapter: DIBH-API Sub 4" Hammer', category: 'Adapter', partNumber: 'DIBH-API Sub 4" Hammer', weight: '12', length: '230', od: '102', pinSize: '2-3/8 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 18, name: 'Adapter: API-API Sub 6" Hammer', category: 'Adapter', partNumber: 'API-API Sub 6" Hammer', weight: '20', length: '250', od: '140', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 19, name: 'Hammer: Sandvik RH460 6"', category: 'Hammer', partNumber: 'Sandvik RH460 6"', weight: '100', length: '1155', od: '6 inch', pinSize: 'QL60', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 20, name: 'Hammer: Sandvik RH460g 6"', category: 'Hammer', partNumber: 'Sandvik RH460g 6"', weight: '117', length: '1155', od: '6 inch', pinSize: 'QL60', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 21, name: 'Hammer: Sandvik RH510r 6"', category: 'Hammer', partNumber: 'Sandvik RH510r 6"', weight: '82', length: '922', od: '6 inch', pinSize: 'M60', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 22, name: 'Hammer: Sandvik RH560g 6"', category: 'Hammer', partNumber: 'Sandvik RH560g 6"', weight: '117', length: '1158', od: '6 inch', pinSize: '560-6', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 23, name: 'Hammer: Epiroc COP 64 Gold', category: 'Hammer', partNumber: 'Epiroc COP 64 Gold', weight: '103', length: '1255', od: '6 inch', pinSize: 'QL60', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 24, name: 'Hammer: Epiroc COP M6', category: 'Hammer', partNumber: 'Epiroc COP M6', weight: '72', length: '1100', od: '6 inch', pinSize: 'Solid', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 25, name: 'Hammer: Sandvik RH460 4"', category: 'Hammer', partNumber: 'Sandvik RH460 4"', weight: '40', length: '985', od: '4 inch', pinSize: 'DHD340', boxSize: '2-3/8 API Reg Box', photo: null },
+      { id: 26, name: 'Hammer: Sandvik RH510r 4"', category: 'Hammer', partNumber: 'Sandvik RH510r 4"', weight: '38', length: '914', od: '4 inch', pinSize: 'M40', boxSize: '2-3/8 API Reg Box', photo: null },
+      { id: 27, name: 'Hammer: Epiroc COP 44 Gold', category: 'Hammer', partNumber: 'Epiroc COP 44 Gold', weight: '39', length: '1049', od: '4 inch', pinSize: 'TD40', boxSize: '2-3/8 API Reg Box', photo: null },
+      { id: 28, name: 'Bit: 115mm Concave M40', category: 'Bit', partNumber: '115mm Concave M40', weight: '8.4', length: '280', od: '115', pinSize: '4 inch', boxSize: 'Concave', photo: null },
+      { id: 29, name: 'Bit: 115mm Concave DHD340', category: 'Bit', partNumber: '115mm Concave DHD340', weight: '8.4', length: '280', od: '115', pinSize: '4 inch', boxSize: 'Concave', photo: null },
+      { id: 30, name: 'Bit: 115mm Uniface M40', category: 'Bit', partNumber: '115mm Uniface M40', weight: '9.4', length: '290', od: '115', pinSize: '4 inch', boxSize: 'Uniface', photo: null },
+      { id: 31, name: 'Bit: 127mm Concave M40', category: 'Bit', partNumber: '127mm Concave M40', weight: '12', length: '300', od: '127', pinSize: '4 inch', boxSize: 'Concave', photo: null },
+      { id: 32, name: 'Bit: 127mm Concave QL60', category: 'Bit', partNumber: '127mm Concave QL60', weight: '14', length: '340', od: '127', pinSize: '6 inch', boxSize: 'Concave', photo: null },
+      { id: 33, name: 'Bit: 127mm Uniface M60', category: 'Bit', partNumber: '127mm Uniface M60', weight: '12.5', length: '310', od: '127', pinSize: '6 inch', boxSize: 'Uniface', photo: null },
+      { id: 34, name: 'Bit: 165mm Concave M60', category: 'Bit', partNumber: '165mm Concave M60', weight: '23.5', length: '350', od: '165', pinSize: '6 inch', boxSize: 'Concave', photo: null },
+      { id: 35, name: 'Bit: 165mm Concave QL60', category: 'Bit', partNumber: '165mm Concave QL60', weight: '27.5', length: '380', od: '165', pinSize: '6 inch', boxSize: 'Concave', photo: null },
+      { id: 36, name: 'Bit: 165mm Convex M60', category: 'Bit', partNumber: '165mm Convex M60', weight: '23.5', length: '350', od: '165', pinSize: '6 inch', boxSize: 'Convex', photo: null },
+      { id: 37, name: 'Bit: 165mm Uniface QL60', category: 'Bit', partNumber: '165mm Uniface QL60', weight: '24.5', length: '370', od: '165', pinSize: '6 inch', boxSize: 'Uniface', photo: null },
     ];
 
     function App() {
+      const [currentPage, setCurrentPage] = useState('fleet');
       const [adminMode, setAdminMode] = useState(false);
       const [showLoginPrompt, setShowLoginPrompt] = useState(false);
       const [loginAttempt, setLoginAttempt] = useState('');
       const [adminPassword] = useState('admin123');
+
       const [consumables, setConsumables] = useState(() => {
         try {
           const saved = localStorage.getItem('consumables');
@@ -35,6 +72,20 @@
         }
       });
 
+      const [authorisedStrings, setAuthorisedStrings] = useState(() => {
+        try {
+          const saved = localStorage.getItem('authorisedStrings');
+          return saved ? JSON.parse(saved) : {};
+        } catch (e) {
+          return {};
+        }
+      });
+
+      const [showCreateString, setShowCreateString] = useState(false);
+      const [newStringName, setNewStringName] = useState('');
+      const [newStringDrillType, setNewStringDrillType] = useState('Epiroc D65');
+      const [newStringComponents, setNewStringComponents] = useState([]);
+
       useEffect(() => {
         try {
           localStorage.setItem('consumables', JSON.stringify(consumables));
@@ -43,48 +94,113 @@
         }
       }, [consumables]);
 
+      useEffect(() => {
+        try {
+          localStorage.setItem('authorisedStrings', JSON.stringify(authorisedStrings));
+        } catch (e) {
+          console.error('Storage error:', e);
+        }
+      }, [authorisedStrings]);
+
       const handleAdminLogin = () => {
         if (loginAttempt === adminPassword) {
           setAdminMode(true);
           setShowLoginPrompt(false);
           setLoginAttempt('');
         } else {
-          alert('Wrong password');
+          alert('❌ Incorrect password');
           setLoginAttempt('');
         }
       };
 
+      const createDrillString = () => {
+        if (!newStringName.trim()) {
+          alert('Enter string name');
+          return;
+        }
+        if (newStringComponents.length === 0) {
+          alert('Add at least one component');
+          return;
+        }
+        const stringId = Date.now().toString();
+        setAuthorisedStrings({
+          ...authorisedStrings,
+          [stringId]: {
+            id: stringId,
+            name: newStringName,
+            drillType: newStringDrillType,
+            components: newStringComponents,
+            created: new Date().toLocaleDateString()
+          }
+        });
+        alert(`✓ String "${newStringName}" created!`);
+        setNewStringName('');
+        setNewStringComponents([]);
+        setShowCreateString(false);
+      };
+
+      // ==================== LOGIN ====================
       if (showLoginPrompt) {
-        return React.createElement('div', { style: { minHeight: '100vh', background: 'linear-gradient(to bottom right, #0f172a, #1e293b)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' } },
-          React.createElement('div', { style: { background: 'linear-gradient(to bottom right, #1e293b, #0f172a)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '0.5rem', padding: '2rem', maxWidth: '24rem', width: '100%' } },
-            React.createElement('h2', { style: { fontSize: '1.5rem', fontWeight: 'bold', color: '#f87171', marginBottom: '1.5rem', textAlign: 'center' } }, '🔓 Admin Login'),
-            React.createElement('input', { type: 'password', placeholder: 'Password', value: loginAttempt, onChange: (e) => setLoginAttempt(e.target.value), onKeyPress: (e) => e.key === 'Enter' && handleAdminLogin(), style: { width: '100%', background: '#475569', color: 'white', borderRadius: '0.375rem', padding: '0.5rem 1rem', marginBottom: '1rem', border: 'none' } }),
-            React.createElement('button', { onClick: handleAdminLogin, style: { width: '100%', background: '#dc2626', color: 'white', padding: '0.5rem', borderRadius: '0.375rem', fontWeight: 'bold', marginBottom: '0.5rem', border: 'none', cursor: 'pointer' } }, 'Login'),
-            React.createElement('button', { onClick: () => setShowLoginPrompt(false), style: { width: '100%', background: '#4b5563', color: 'white', padding: '0.5rem', borderRadius: '0.375rem', fontWeight: 'bold', border: 'none', cursor: 'pointer' } }, 'Cancel')
+        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center' },
+          React.createElement('div', { className: 'bg-slate-800 border border-red-500/30 rounded-lg p-8 max-w-sm w-full' },
+            React.createElement('h2', { className: 'text-2xl font-bold text-red-400 mb-6 text-center' }, '🔓 Admin Login'),
+            React.createElement('input', { type: 'password', placeholder: 'Password', value: loginAttempt, onChange: (e) => setLoginAttempt(e.target.value), onKeyPress: (e) => e.key === 'Enter' && handleAdminLogin(), className: 'w-full bg-slate-600 text-white rounded px-4 py-2 mb-4' }),
+            React.createElement('button', { onClick: handleAdminLogin, className: 'w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold mb-2' }, 'Login'),
+            React.createElement('button', { onClick: () => setShowLoginPrompt(false), className: 'w-full bg-gray-600 hover:bg-gray-500 text-white py-2 rounded font-bold' }, 'Cancel')
           )
         );
       }
 
-      if (adminMode) {
-        return React.createElement('div', { style: { minHeight: '100vh', background: 'linear-gradient(to bottom right, #0f172a, #1e293b)', color: 'white', padding: '1.5rem' } },
-          React.createElement('div', { style: { maxWidth: '80rem', margin: '0 auto' } },
-            React.createElement('div', { style: { marginBottom: '2rem' } },
-              React.createElement('h1', { style: { fontSize: '1.875rem', fontWeight: 'bold', color: '#60a5fa', marginBottom: '1rem' } }, '⚙️ Admin Panel'),
-              React.createElement('button', { onClick: () => setAdminMode(false), style: { background: '#dc2626', color: 'white', padding: '0.5rem 1rem', borderRadius: '0.375rem', fontWeight: 'bold', border: 'none', cursor: 'pointer' } }, 'Logout')
-            ),
-            React.createElement('div', { style: { background: 'linear-gradient(to bottom right, #1e293b, #0f172a)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '0.5rem', padding: '1.5rem' } },
-              React.createElement('h2', { style: { fontSize: '1.25rem', fontWeight: 'bold', color: '#60a5fa', marginBottom: '1rem' } }, '🧩 Consumables'),
-              React.createElement('p', { style: { color: '#9ca3af', marginBottom: '1.5rem' } }, `Total items: ${consumables.length}`),
-              React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' } },
-                consumables.map(cons =>
-                  React.createElement('div', { key: cons.id, style: { background: 'linear-gradient(to bottom right, #334155, #1e293b)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '0.5rem', padding: '1rem' } },
-                    React.createElement('div', { style: { fontWeight: 'bold', color: '#60a5fa', marginBottom: '0.5rem' } }, cons.name),
-                    React.createElement('div', { style: { fontSize: '0.875rem', color: '#9ca3af', marginBottom: '0.5rem' } }, cons.category),
-                    React.createElement('div', { style: { fontSize: '0.875rem', color: '#6b7280' } },
-                      cons.weight ? `Weight: ${cons.weight}kg` : '',
-                      React.createElement('br'),
-                      cons.od ? `OD: ${cons.od}mm` : ''
+      // ==================== CREATE STRING ====================
+      if (adminMode && showCreateString) {
+        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
+          React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
+            React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between' },
+              React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⛓️ Create Drill String'),
+              React.createElement('button', { onClick: () => { setShowCreateString(false); setNewStringComponents([]); }, className: 'bg-gray-600 text-white px-4 py-2 rounded' }, 'Back')
+            )
+          ),
+          React.createElement('div', { className: 'max-w-7xl mx-auto p-6' },
+            React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-3 gap-6' },
+              React.createElement('div', { className: 'lg:col-span-2' },
+                React.createElement('div', { className: 'bg-slate-700 border border-blue-500/30 rounded-lg p-6' },
+                  React.createElement('h3', { className: 'text-xl font-bold text-blue-400 mb-4' }, '📝 String Details'),
+                  React.createElement('input', { type: 'text', placeholder: 'String name', value: newStringName, onChange: (e) => setNewStringName(e.target.value), className: 'w-full bg-slate-600 text-white rounded px-4 py-2 mb-4' }),
+                  React.createElement('select', { value: newStringDrillType, onChange: (e) => setNewStringDrillType(e.target.value), className: 'w-full bg-slate-600 text-white rounded px-4 py-2 mb-4' },
+                    React.createElement('option', null, 'Epiroc D65'),
+                    React.createElement('option', null, 'CAT MD6250')
+                  ),
+                  React.createElement('h4', { className: 'text-blue-300 font-bold mb-3' }, '🧩 Available Components'),
+                  React.createElement('select', {
+                    onChange: (e) => {
+                      const comp = consumables.find(c => c.id === parseInt(e.target.value));
+                      if (comp && !newStringComponents.some(c => c.id === comp.id)) {
+                        setNewStringComponents([...newStringComponents, comp]);
+                      }
+                      e.target.value = '';
+                    },
+                    className: 'w-full bg-slate-600 text-white rounded px-4 py-2 mb-4'
+                  },
+                    React.createElement('option', { value: '' }, '-- Select component --'),
+                    consumables.map(c => React.createElement('option', { key: c.id, value: c.id }, c.name))
+                  ),
+                  React.createElement('div', { className: 'space-y-2 mb-4' },
+                    newStringComponents.map((comp, idx) =>
+                      React.createElement('div', { key: idx, className: 'bg-slate-600/50 p-3 rounded flex justify-between' },
+                        React.createElement('span', { className: 'text-blue-300' }, `${idx + 1}. ${comp.name}`),
+                        React.createElement('button', { onClick: () => setNewStringComponents(newStringComponents.filter((_, i) => i !== idx)), className: 'text-red-400' }, '✕')
+                      )
                     )
+                  ),
+                  React.createElement('button', { onClick: createDrillString, className: 'w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded font-bold' }, '✓ Create String')
+                )
+              ),
+              React.createElement('div', { className: 'bg-slate-700 border border-blue-500/30 rounded-lg p-6 sticky top-6' },
+                React.createElement('h4', { className: 'text-blue-300 font-bold mb-4' }, '👀 Preview'),
+                React.createElement('div', { className: 'flex flex-col items-center gap-1 min-h-64' },
+                  newStringComponents.length === 0 && React.createElement('p', { className: 'text-gray-400 text-sm' }, 'Add components'),
+                  newStringComponents.map((comp, idx) =>
+                    React.createElement('div', { key: idx, className: 'w-20 h-8 bg-blue-600 rounded text-xs text-white flex items-center justify-center' }, comp.category)
                   )
                 )
               )
@@ -93,16 +209,64 @@
         );
       }
 
-      return React.createElement('div', { style: { minHeight: '100vh', background: 'linear-gradient(to bottom right, #0f172a, #1e293b)', color: 'white', padding: '1.5rem' } },
-        React.createElement('div', { style: { maxWidth: '80rem', margin: '0 auto' } },
-          React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' } },
-            React.createElement('h1', { style: { fontSize: '2rem', fontWeight: 'bold', color: '#60a5fa' } }, '⛏️ Drill Rig Management'),
-            React.createElement('button', { onClick: () => setShowLoginPrompt(true), style: { background: '#dc2626', color: 'white', padding: '0.5rem 1rem', borderRadius: '0.375rem', fontWeight: 'bold', border: 'none', cursor: 'pointer' } }, '🔓 Admin')
+      // ==================== ADMIN PANEL ====================
+      if (adminMode) {
+        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
+          React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
+            React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between' },
+              React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⚙️ Admin Panel'),
+              React.createElement('button', { onClick: () => setAdminMode(false), className: 'bg-red-600 text-white px-4 py-2 rounded font-bold' }, 'Logout')
+            )
           ),
-          React.createElement('div', { style: { background: 'linear-gradient(to bottom right, #1e293b, #0f172a)', border: '2px solid rgba(34, 197, 94, 0.3)', borderRadius: '0.5rem', padding: '2rem', textAlign: 'center' } },
-            React.createElement('h2', { style: { fontSize: '1.5rem', color: '#22c55e', marginBottom: '1rem' } }, '✓ System Online'),
-            React.createElement('p', { style: { color: '#d1d5db', marginBottom: '1rem' } }, `Consumables loaded: ${consumables.length} items`),
-            React.createElement('p', { style: { color: '#9ca3af' } }, 'Click "Admin" to manage items and create drill strings')
+          React.createElement('div', { className: 'max-w-7xl mx-auto p-6' },
+            React.createElement('div', { className: 'flex gap-2 mb-6' },
+              React.createElement('button', { onClick: () => setShowCreateString(true), className: 'bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold' }, '⛓️ Create String')
+            ),
+            React.createElement('div', { className: 'bg-slate-700 border border-blue-500/30 rounded-lg p-6' },
+              React.createElement('h2', { className: 'text-2xl font-bold text-blue-400 mb-4' }, '🧩 Consumables'),
+              React.createElement('p', { className: 'text-gray-300 mb-4' }, `Total: ${consumables.length} items (37 approved + ${consumables.length - 37} custom)`),
+              React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' },
+                consumables.map(cons =>
+                  React.createElement('div', { key: cons.id, className: 'bg-slate-600/50 border border-slate-500 rounded p-4' },
+                    React.createElement('div', { className: 'font-bold text-blue-300 text-sm mb-2' }, cons.name),
+                    React.createElement('div', { className: 'text-xs text-gray-400 space-y-1' },
+                      React.createElement('div', null, `Category: ${cons.category}`),
+                      React.createElement('div', null, `PN: ${cons.partNumber}`),
+                      React.createElement('div', null, `Weight: ${cons.weight}kg | OD: ${cons.od}mm`)
+                    )
+                  )
+                )
+              )
+            ),
+            React.createElement('div', { className: 'bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mt-6' },
+              React.createElement('h3', { className: 'text-blue-300 font-bold mb-2' }, '📋 Authorised Strings'),
+              React.createElement('p', { className: 'text-blue-200' }, `Created: ${Object.keys(authorisedStrings).length} drill string(s)`),
+              Object.values(authorisedStrings).map(str =>
+                React.createElement('div', { key: str.id, className: 'bg-slate-600/50 p-3 rounded mt-2' },
+                  React.createElement('div', { className: 'font-bold text-blue-300' }, str.name),
+                  React.createElement('div', { className: 'text-xs text-gray-400' }, `${str.drillType} | ${str.components.length} components`)
+                )
+              )
+            )
+          )
+        );
+      }
+
+      // ==================== FLEET DASHBOARD ====================
+      return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
+        React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
+          React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between' },
+            React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⛏️ Drill Rig Management'),
+            React.createElement('button', { onClick: () => setShowLoginPrompt(true), className: 'bg-red-600 text-white px-4 py-2 rounded font-bold' }, '🔓 Admin')
+          )
+        ),
+        React.createElement('div', { className: 'max-w-7xl mx-auto p-6' },
+          React.createElement('h2', { className: 'text-3xl font-bold text-blue-400 mb-6' }, '📊 Fleet Dashboard'),
+          React.createElement('div', { className: 'bg-green-900/20 border border-green-500/30 rounded-lg p-6' },
+            React.createElement('h3', { className: 'text-green-400 text-xl font-bold mb-2' }, '✓ System Online'),
+            React.createElement('p', { className: 'text-green-200 mb-2' }, `Consumables: ${consumables.length} items loaded`),
+            React.createElement('p', { className: 'text-green-200 mb-4' }, `Drill Strings: ${Object.keys(authorisedStrings).length} created`),
+            React.createElement('p', { className: 'text-green-300' }, 'Click "Admin" to create drill strings using approved consumables')
           )
         )
       );
