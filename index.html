@@ -97,8 +97,8 @@
         try {
           const saved = localStorage.getItem('drills');
           return saved ? JSON.parse(saved) : {
-            'DR201': { type: 'Epiroc D65', location: 'Collar Zone', status: 'Active', hours: 2847, photo: null },
-            'DR202': { type: 'Epiroc D65', location: 'Overburden', status: 'Active', hours: 2934, photo: null },
+            'DR201': { type: 'Epiroc D65', location: 'Wall Control', status: 'Active', hours: 2847, photo: null },
+            'DR202': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 2934, photo: null },
             'DR203': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 3102, photo: null },
             'DR204': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 2756, photo: null },
             'DR205': { type: 'Epiroc D65', location: 'Production', status: 'Standby', hours: 1829, photo: null },
@@ -106,10 +106,10 @@
             'DR207': { type: 'Epiroc D65', location: 'Wall Control', status: 'Active', hours: 2234, photo: null },
             'DR208': { type: 'CAT MD6250', location: 'Production', status: 'Active', hours: 2987, photo: null },
             'DR209': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 3045, photo: null },
-            'DR210': { type: 'Epiroc D65', location: 'Deep Prod', status: 'Active', hours: 2123, photo: null },
-            'DR211': { type: 'CAT MD6250', location: 'Production', status: 'Active', hours: 2876, photo: null },
+            'DR210': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 2123, photo: null },
+            'DR211': { type: 'CAT MD6250', location: 'Platform', status: 'Active', hours: 2876, photo: null },
             'DR212': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 2645, photo: null },
-            'DR213': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 2734, photo: null },
+            'DR213': { type: 'Epiroc D65', location: 'Platform', status: 'Active', hours: 2734, photo: null },
             'DR214': { type: 'Epiroc D65', location: 'Wall Control', status: 'Maintenance', hours: 1456, photo: null },
           };
         } catch (e) {
@@ -160,7 +160,6 @@
       const [newStringComponents, setNewStringComponents] = useState([]);
       const [newDrillId, setNewDrillId] = useState('DR301');
       const [newDrillType, setNewDrillType] = useState('Epiroc D65');
-      const [newDrillLocation, setNewDrillLocation] = useState('');
       const [newDrillPhoto, setNewDrillPhoto] = useState(null);
 
       // PERSISTENCE
@@ -250,10 +249,9 @@
 
       const addDrill = () => {
         if (!newDrillId.trim()) { alert('Enter drill ID'); return; }
-        setDrills({ ...drills, [newDrillId]: { type: newDrillType, location: newDrillLocation, status: 'Active', hours: 0, photo: newDrillPhoto } });
+        setDrills({ ...drills, [newDrillId]: { type: newDrillType, location: 'Production', status: 'Active', hours: 0, photo: newDrillPhoto } });
         alert(`✓ Drill ${newDrillId} added!`);
         setNewDrillId('');
-        setNewDrillLocation('');
         setNewDrillPhoto(null);
         setShowAddDrill(false);
       };
@@ -467,8 +465,7 @@
                   React.createElement('option', null, 'Epiroc D65'),
                   React.createElement('option', null, 'CAT MD6250')
                 ),
-                React.createElement('input', { type: 'text', placeholder: 'Location', value: newDrillLocation, onChange: (e) => setNewDrillLocation(e.target.value), className: 'bg-slate-600 text-white rounded px-4 py-2 border-0' }),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-2' }, '📸 Drill Photo'), React.createElement('input', { type: 'file', accept: 'image/*', onChange: (e) => handlePhotoUpload(e, 'drill'), className: 'block w-full text-white' }))
+                React.createElement('div', { className: 'md:col-span-2' }, React.createElement('label', { className: 'text-gray-300 block mb-2' }, '📸 Drill Photo'), React.createElement('input', { type: 'file', accept: 'image/*', onChange: (e) => handlePhotoUpload(e, 'drill'), className: 'block w-full text-white' }))
               ),
               newDrillPhoto && React.createElement('div', { className: 'mb-4 text-center' }, React.createElement('img', { src: newDrillPhoto, className: 'w-32 h-32 object-cover rounded mx-auto' })),
               React.createElement('button', { onClick: addDrill, className: 'w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded font-bold border-0 cursor-pointer' }, '✓ Add Drill')
@@ -550,11 +547,8 @@
                 Object.entries(drills).map(([rigId, drill]) =>
                   React.createElement('div', { key: rigId, className: 'bg-slate-700 border border-blue-500/30 rounded-lg p-4' },
                     drill.photo && React.createElement('img', { src: drill.photo, className: 'w-full h-32 object-cover rounded mb-2' }),
-                    React.createElement('div', { className: 'font-bold text-blue-300 text-lg' }, rigId),
-                    React.createElement('div', { className: 'text-xs text-gray-400 space-y-1' },
-                      React.createElement('div', null, `Type: ${drill.type}`),
-                      React.createElement('div', null, `Location: ${drill.location}`)
-                    ),
+                    React.createElement('div', { className: 'font-bold text-blue-300 text-lg mb-2' }, rigId),
+                    React.createElement('div', { className: 'text-xs text-gray-400 mb-3' }, drill.type),
                     React.createElement('div', { className: 'mt-2' },
                       React.createElement('label', { className: 'text-gray-300 block mb-1 text-xs' }, 'Update photo:'),
                       React.createElement('input', { type: 'file', accept: 'image/*', onChange: (e) => handleDrillPhotoUpload(rigId, e), className: 'block w-full text-white text-xs' })
@@ -607,11 +601,8 @@
                 React.createElement('div', { className: 'bg-slate-700 border border-blue-500/30 rounded-lg p-6' },
                   drill.photo && React.createElement('img', { src: drill.photo, className: 'w-full h-40 object-cover rounded mb-4' }),
                   React.createElement('h2', { className: 'text-3xl font-bold text-blue-400 mb-4' }, selectedRig),
-                  React.createElement('div', { className: 'space-y-3 text-gray-300' },
-                    React.createElement('div', null, React.createElement('span', { className: 'text-gray-400 font-bold' }, 'Type: '), drill.type),
-                    React.createElement('div', null, React.createElement('span', { className: 'text-gray-400 font-bold' }, 'Location: '), drill.location),
-                    React.createElement('div', { style: { color: drill.status === 'Active' ? '#4ade80' : '#eab308' } }, `Status: ${drill.status}`),
-                    React.createElement('div', { className: 'text-lg text-green-400 font-bold' }, `Hours: ${drill.hours.toLocaleString()}`)
+                  React.createElement('div', { className: 'text-gray-300' },
+                    React.createElement('div', { className: 'text-sm' }, drill.type)
                   )
                 )
               ),
@@ -679,20 +670,18 @@
         React.createElement('div', { className: 'max-w-7xl mx-auto p-6' },
           React.createElement('h2', { className: 'text-3xl font-bold text-blue-400 mb-6' }, '📊 Fleet Dashboard - Pilgangoora'),
           React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' },
-            Object.entries(drills).map(([rigId, drill]) =>
-              React.createElement('div', { key: rigId, onClick: () => { setSelectedRig(rigId); setCurrentPage('detail'); }, className: 'bg-slate-700 border border-blue-500/30 rounded-lg p-4 cursor-pointer hover:border-blue-400 hover:shadow-lg transition' },
+            Object.entries(drills).map(([rigId, drill]) => {
+              const assignedStringId = rigStringAssignments[rigId];
+              const assignedString = assignedStringId ? authorisedStrings[assignedStringId] : null;
+              const stringFirstWord = assignedString ? assignedString.name.split(' ')[0] : null;
+              return React.createElement('div', { key: rigId, onClick: () => { setSelectedRig(rigId); setCurrentPage('detail'); }, className: 'bg-slate-700 border border-blue-500/30 rounded-lg p-4 cursor-pointer hover:border-blue-400 hover:shadow-lg transition' },
                 drill.photo && React.createElement('img', { src: drill.photo, className: 'w-full h-40 object-cover rounded mb-2' }),
-                React.createElement('div', { className: 'font-bold text-blue-400 text-lg' }, rigId),
-                React.createElement('div', { className: 'space-y-1 text-sm text-gray-300' },
-                  React.createElement('div', null, `Type: ${drill.type}`),
-                  React.createElement('div', null, `Location: ${drill.location}`),
-                  React.createElement('div', { style: { color: drill.status === 'Active' ? '#4ade80' : '#eab308' } }, `Status: ${drill.status}`),
-                  React.createElement('div', { className: 'text-blue-300 font-bold' }, `Hours: ${drill.hours.toLocaleString()}`)
-                ),
-                rigStringAssignments[rigId] && React.createElement('div', { className: 'mt-2 pt-2 border-t border-gray-600 text-xs text-green-400 font-bold' }, '✓ String assigned'),
+                React.createElement('div', { className: 'font-bold text-blue-400 text-lg mb-2' }, rigId),
+                React.createElement('div', { className: 'text-sm text-gray-300 mb-3' }, drill.type),
+                stringFirstWord && React.createElement('div', { className: 'text-sm text-green-400 font-bold' }, `📋 ${stringFirstWord}`),
                 React.createElement('div', { className: 'mt-3 text-xs text-gray-400' }, '→ Click to manage')
-              )
-            )
+              );
+            })
           )
         )
       );
