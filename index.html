@@ -13,9 +13,11 @@
         size: A3;
         margin: 10mm;
       }
-      body { margin: 0; padding: 0; background: white; }
+      body { margin: 0; padding: 0; background: white; color-adjust: exact; -webkit-print-color-adjust: exact; }
       .no-print { display: none !important; }
       .print-only { display: block !important; }
+      img { display: block !important; visibility: visible !important; opacity: 1 !important; color-adjust: exact; -webkit-print-color-adjust: exact; }
+      div { color-adjust: exact; -webkit-print-color-adjust: exact; }
     }
     .print-only { display: none; }
   </style>
@@ -591,6 +593,12 @@
         return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
           // PRINT LAYOUT - A3 OPTIMIZED (COMPACT)
           assignedString && React.createElement('div', { className: 'print-only' },
+            React.createElement('style', null, `
+              @media print {
+                img { display: block !important; visibility: visible !important; opacity: 1 !important; }
+                img[src] { display: block !important; visibility: visible !important; }
+              }
+            `),
             React.createElement('div', { style: { width: '100%', padding: '12mm', background: 'white', color: 'black', fontFamily: 'Arial, sans-serif', fontSize: '10px' } },
               React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8mm', paddingBottom: '8mm', borderBottom: '2px solid black' } },
                 logoImage && React.createElement('img', { src: logoImage, style: { maxWidth: '70px', maxHeight: '40px', objectFit: 'contain' } }),
