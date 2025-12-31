@@ -69,16 +69,20 @@
         };
       });
 
-      // Authorised Strings
+      // Authorised Strings - Initialize with test string for DR201
       const [authorisedStrings, setAuthorisedStrings] = useState(() => {
         const saved = localStorage.getItem('authorisedStrings');
         return saved ? JSON.parse(saved) : {};
       });
 
-      // Rig String Assignments
+      // Rig String Assignments - Initialize with DR201 having test string
       const [rigStringAssignments, setRigStringAssignments] = useState(() => {
         const saved = localStorage.getItem('rigStringAssignments');
-        return saved ? JSON.parse(saved) : {};
+        if (saved) {
+          return JSON.parse(saved);
+        }
+        // Initialize with empty - no default assignments
+        return {};
       });
 
       // Admin Forms
@@ -86,15 +90,26 @@
       const [showCreateString, setShowCreateString] = useState(false);
       const [showAddConsumable, setShowAddConsumable] = useState(false);
       const [showAddDrill, setShowAddDrill] = useState(false);
-      const [showPrint, setShowPrint] = useState(false);
 
-      // Form inputs
+      // Form inputs for consumable
+      const [newConsumable, setNewConsumable] = useState({ 
+        name: '', 
+        category: '', 
+        partNumber: '',
+        weight: '',
+        length: '',
+        od: '',
+        pinSize: '',
+        pinThread: '',
+        boxSize: '',
+        boxThread: '',
+        photo: null 
+      });
+
       const [newStringName, setNewStringName] = useState('');
       const [newStringDrillType, setNewStringDrillType] = useState('Epiroc D65');
       const [newStringComponents, setNewStringComponents] = useState([]);
-      const [selectedConsumableForAdd, setSelectedConsumableForAdd] = useState('');
 
-      const [newConsumable, setNewConsumable] = useState({ name: '', category: '', partNumber: '', photo: null });
       const [newDrillId, setNewDrillId] = useState('DR301');
       const [newDrillType, setNewDrillType] = useState('Epiroc D65');
       const [newDrillLocation, setNewDrillLocation] = useState('');
@@ -193,7 +208,19 @@
         }
         setConsumables([...consumables, { id: Date.now(), ...newConsumable }]);
         alert('✓ Consumable added!');
-        setNewConsumable({ name: '', category: '', partNumber: '', photo: null });
+        setNewConsumable({ 
+          name: '', 
+          category: '', 
+          partNumber: '',
+          weight: '',
+          length: '',
+          od: '',
+          pinSize: '',
+          pinThread: '',
+          boxSize: '',
+          boxThread: '',
+          photo: null 
+        });
         setShowAddConsumable(false);
       };
 
@@ -393,57 +420,142 @@
       if (adminMode && showAddConsumable) {
         return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
           React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
-            React.createElement('div', { className: 'max-w-4xl mx-auto' },
+            React.createElement('div', { className: 'max-w-6xl mx-auto' },
               React.createElement('button', {
                 onClick: () => setShowAddConsumable(false),
                 className: 'bg-gray-600 text-white px-4 py-2 rounded'
               }, 'Back')
             )
           ),
-          React.createElement('div', { className: 'max-w-4xl mx-auto p-6' },
+          React.createElement('div', { className: 'max-w-6xl mx-auto p-6' },
             React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
               React.createElement('h2', { className: 'text-2xl font-bold text-blue-400 mb-6' }, '➕ Add Consumable Item'),
-              React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-4' },
-                React.createElement('input', {
-                  type: 'text',
-                  placeholder: 'Item Name (e.g., SCS Assembly)',
-                  value: newConsumable.name,
-                  onChange: (e) => setNewConsumable({ ...newConsumable, name: e.target.value }),
-                  className: 'bg-slate-600 text-white rounded px-4 py-2'
-                }),
-                React.createElement('input', {
-                  type: 'text',
-                  placeholder: 'Category (e.g., Spindle)',
-                  value: newConsumable.category,
-                  onChange: (e) => setNewConsumable({ ...newConsumable, category: e.target.value }),
-                  className: 'bg-slate-600 text-white rounded px-4 py-2'
-                }),
-                React.createElement('input', {
-                  type: 'text',
-                  placeholder: 'Part Number',
-                  value: newConsumable.partNumber,
-                  onChange: (e) => setNewConsumable({ ...newConsumable, partNumber: e.target.value }),
-                  className: 'bg-slate-600 text-white rounded px-4 py-2'
-                }),
+              
+              React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6' },
+                // Basic Info
                 React.createElement('div', null,
-                  React.createElement('label', { className: 'text-gray-300 block mb-2' }, '📸 Upload Photo'),
+                  React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Item Name *'),
+                  React.createElement('input', {
+                    type: 'text',
+                    placeholder: 'e.g., SCS Assembly',
+                    value: newConsumable.name,
+                    onChange: (e) => setNewConsumable({ ...newConsumable, name: e.target.value }),
+                    className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
+                  })
+                ),
+                React.createElement('div', null,
+                  React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Category *'),
+                  React.createElement('input', {
+                    type: 'text',
+                    placeholder: 'e.g., Spindle',
+                    value: newConsumable.category,
+                    onChange: (e) => setNewConsumable({ ...newConsumable, category: e.target.value }),
+                    className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
+                  })
+                ),
+                React.createElement('div', null,
+                  React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Part Number'),
+                  React.createElement('input', {
+                    type: 'text',
+                    placeholder: 'e.g., PN-001',
+                    value: newConsumable.partNumber,
+                    onChange: (e) => setNewConsumable({ ...newConsumable, partNumber: e.target.value }),
+                    className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
+                  })
+                ),
+
+                // Dimensions
+                React.createElement('div', null,
+                  React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Weight (kg)'),
+                  React.createElement('input', {
+                    type: 'text',
+                    placeholder: 'e.g., 45',
+                    value: newConsumable.weight,
+                    onChange: (e) => setNewConsumable({ ...newConsumable, weight: e.target.value }),
+                    className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
+                  })
+                ),
+                React.createElement('div', null,
+                  React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Length (mm)'),
+                  React.createElement('input', {
+                    type: 'text',
+                    placeholder: 'e.g., 150',
+                    value: newConsumable.length,
+                    onChange: (e) => setNewConsumable({ ...newConsumable, length: e.target.value }),
+                    className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
+                  })
+                ),
+                React.createElement('div', null,
+                  React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Outside Diameter (mm)'),
+                  React.createElement('input', {
+                    type: 'text',
+                    placeholder: 'e.g., 65',
+                    value: newConsumable.od,
+                    onChange: (e) => setNewConsumable({ ...newConsumable, od: e.target.value }),
+                    className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
+                  })
+                ),
+
+                // Pin
+                React.createElement('div', null,
+                  React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Pin Size/Thread'),
+                  React.createElement('input', {
+                    type: 'text',
+                    placeholder: 'e.g., 3.5 API Reg Pin',
+                    value: newConsumable.pinSize,
+                    onChange: (e) => setNewConsumable({ ...newConsumable, pinSize: e.target.value }),
+                    className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
+                  })
+                ),
+
+                // Box
+                React.createElement('div', null,
+                  React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Box Size/Thread'),
+                  React.createElement('input', {
+                    type: 'text',
+                    placeholder: 'e.g., 3.5 API Reg Box',
+                    value: newConsumable.boxSize,
+                    onChange: (e) => setNewConsumable({ ...newConsumable, boxSize: e.target.value }),
+                    className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
+                  })
+                ),
+
+                // Photo
+                React.createElement('div', null,
+                  React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, '📸 Upload Photo'),
                   React.createElement('input', {
                     type: 'file',
                     accept: 'image/*',
                     onChange: (e) => handlePhotoUpload(e, true),
-                    className: 'block w-full text-white'
+                    className: 'block w-full text-white text-sm'
                   })
                 )
               ),
-              newConsumable.photo && React.createElement('div', { className: 'mt-4' },
+
+              // Photo Preview
+              newConsumable.photo && React.createElement('div', { className: 'mb-6' },
+                React.createElement('h4', { className: 'text-blue-300 font-bold mb-2' }, 'Photo Preview:'),
                 React.createElement('img', {
                   src: newConsumable.photo,
                   className: 'w-32 h-32 object-cover rounded'
                 })
               ),
+
+              // Specs Preview
+              React.createElement('div', { className: 'bg-slate-600/50 p-4 rounded mb-6' },
+                React.createElement('h4', { className: 'text-blue-300 font-bold mb-3' }, '📋 Specification Summary:'),
+                React.createElement('div', { className: 'grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-300' },
+                  React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Weight: '), newConsumable.weight || '-'),
+                  React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Length: '), newConsumable.length || '-'),
+                  React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'OD: '), newConsumable.od || '-'),
+                  React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Pin: '), newConsumable.pinSize || '-'),
+                  React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Box: '), newConsumable.boxSize || '-')
+                )
+              ),
+
               React.createElement('button', {
                 onClick: addConsumable,
-                className: 'w-full mt-4 bg-green-600 hover:bg-green-500 text-white py-2 rounded font-bold'
+                className: 'w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded font-bold text-lg'
               }, '✓ Add Item')
             )
           )
@@ -624,10 +736,15 @@
                       className: 'w-full h-32 object-cover rounded mb-2'
                     }),
                     React.createElement('div', { className: 'font-bold text-blue-300' }, cons.name),
-                    React.createElement('div', { className: 'text-xs text-gray-400' }, `${cons.category} | ${cons.partNumber}`),
+                    React.createElement('div', { className: 'text-xs text-gray-400 mb-2' }, `${cons.category} | ${cons.partNumber}`),
+                    React.createElement('div', { className: 'text-xs text-gray-500 space-y-1 mb-2' },
+                      cons.weight && React.createElement('div', null, `Weight: ${cons.weight}kg`),
+                      cons.od && React.createElement('div', null, `OD: ${cons.od}mm`),
+                      cons.pinSize && React.createElement('div', null, `Pin: ${cons.pinSize}`)
+                    ),
                     React.createElement('button', {
                       onClick: () => removeConsumable(cons.id),
-                      className: 'text-red-400 text-sm mt-2'
+                      className: 'text-red-400 text-sm'
                     }, '✕ Remove')
                   )
                 )
@@ -726,7 +843,7 @@
       if (currentPage === 'detail') {
         const drill = drills[selectedRig];
         const assignedStringId = rigStringAssignments[selectedRig];
-        const assignedString = assignedStringId && authorisedStrings[assignedStringId];
+        const assignedString = assignedStringId ? authorisedStrings[assignedStringId] : null;
         const availableStrings = Object.values(authorisedStrings).filter(s => s.drillType === drill.type);
 
         return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
@@ -784,20 +901,26 @@
                 // Center & Right: Component Details
                 React.createElement('div', { className: 'col-span-2' },
                   React.createElement('h3', { className: 'text-lg font-bold mb-3 border-b-2 border-black pb-2' }, 'Component Details'),
-                  React.createElement('table', { className: 'w-full border-collapse' },
+                  React.createElement('table', { className: 'w-full border-collapse text-sm' },
                     React.createElement('thead', null,
                       React.createElement('tr', { className: 'bg-gray-300' },
-                        React.createElement('th', { className: 'border-2 border-black p-2 text-left' }, 'Component'),
-                        React.createElement('th', { className: 'border-2 border-black p-2 text-left' }, 'Category'),
-                        React.createElement('th', { className: 'border-2 border-black p-2 text-left' }, 'Part Number')
+                        React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Component'),
+                        React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'PN'),
+                        React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Wt(kg)'),
+                        React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Length'),
+                        React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'OD'),
+                        React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Pin/Box')
                       )
                     ),
                     React.createElement('tbody', null,
                       assignedString.components.map((comp, idx) =>
                         React.createElement('tr', { key: idx, className: idx % 2 === 0 ? 'bg-white' : 'bg-gray-100' },
-                          React.createElement('td', { className: 'border-2 border-black p-2 font-bold' }, comp.name),
-                          React.createElement('td', { className: 'border-2 border-black p-2' }, comp.category || '-'),
-                          React.createElement('td', { className: 'border-2 border-black p-2 font-mono text-sm' }, comp.partNumber || '-')
+                          React.createElement('td', { className: 'border-2 border-black p-1 font-bold text-xs' }, comp.name.substring(0, 20)),
+                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs' }, comp.partNumber || '-'),
+                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs text-center' }, comp.weight || '-'),
+                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs text-center' }, comp.length ? `${comp.length}mm` : '-'),
+                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs text-center' }, comp.od ? `${comp.od}mm` : '-'),
+                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs' }, `${comp.pinSize ? comp.pinSize.substring(0, 10) : ''} / ${comp.boxSize ? comp.boxSize.substring(0, 10) : ''}`)
                         )
                       )
                     )
@@ -813,7 +936,7 @@
           ),
 
           // Edit Mode
-          !showPrint && React.createElement('div', { className: 'max-w-7xl mx-auto p-6 no-print' },
+          React.createElement('div', { className: 'max-w-7xl mx-auto p-6 no-print' },
             React.createElement('button', {
               onClick: () => setCurrentPage('fleet'),
               className: 'bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-bold mb-6'
@@ -863,7 +986,9 @@
                           }, '🖨️ Print String'),
                           React.createElement('button', {
                             onClick: () => {
-                              setRigStringAssignments({...rigStringAssignments, [selectedRig]: undefined});
+                              const newAssignments = { ...rigStringAssignments };
+                              delete newAssignments[selectedRig];
+                              setRigStringAssignments(newAssignments);
                             },
                             className: 'bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded'
                           }, 'Remove String')
@@ -891,7 +1016,7 @@
                       React.createElement('p', { className: 'text-gray-400 mb-4' }, 'No drill string assigned. Select one:'),
                       React.createElement('div', { className: 'space-y-2' },
                         availableStrings.length === 0 ?
-                          React.createElement('p', { className: 'text-gray-500 text-sm' }, 'No strings available for this drill type')
+                          React.createElement('p', { className: 'text-gray-500 text-sm' }, 'No strings available for this drill type. Create one in admin.')
                           :
                           availableStrings.map((str) =>
                             React.createElement('button', {
