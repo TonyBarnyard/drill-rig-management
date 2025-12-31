@@ -27,6 +27,60 @@
   <script>
     const { useState, useEffect } = React;
 
+    // ALL APPROVED CONSUMABLES FROM D65 EXCEL - COMPLETE DATABASE
+    const defaultConsumables = [
+      // SHOCK SUBS
+      { id: 1, name: 'Shock Sub: Montrae 4600', category: 'Shock Sub', partNumber: 'Montrae 4600', weight: '442', length: '562', od: '200', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 2, name: 'Shock Sub: Montrae 5600', category: 'Shock Sub', partNumber: 'Montrae 5600', weight: '820', length: '650', od: '254', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 3, name: 'Shock Sub: Montrae 3600', category: 'Shock Sub', partNumber: 'Montrae 3600', weight: '295', length: '480', od: '178', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
+      
+      // SPINDLES / CROSSOVERS
+      { id: 4, name: 'Spindle: API-DIBH Crossover 102', category: 'Spindle', partNumber: 'API-DIBH Crossover 102', weight: '18', length: '305', od: '127', pinSize: '3-1/8 DIBH Pin', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 5, name: 'Spindle: API-DIBH Crossover 114', category: 'Spindle', partNumber: 'API-DIBH Crossover 114', weight: '24', length: '330', od: '140', pinSize: '3-1/8 DIBH Pin', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 6, name: 'Spindle: DIBH-API Crossover 102', category: 'Spindle', partNumber: 'DIBH-API Crossover 102', weight: '18', length: '305', od: '127', pinSize: '3.5 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 7, name: 'Spindle: DIBH-API Crossover 114', category: 'Spindle', partNumber: 'DIBH-API Crossover 114', weight: '24', length: '330', od: '140', pinSize: '3.5 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      
+      // DRILL PIPE
+      { id: 8, name: 'Drill Pipe: 102x6.3 - 6m DIBH', category: 'Drill Pipe', partNumber: '102x6.3 - 6m DIBH', weight: '100', length: '6000', od: '102', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 9, name: 'Drill Pipe: 102x8.8 - 6m DIBH', category: 'Drill Pipe', partNumber: '102x8.8 - 6m DIBH', weight: '134', length: '6000', od: '102', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 10, name: 'Drill Pipe: 102x12.7 - 6m API', category: 'Drill Pipe', partNumber: '102x12.7 - 6m API', weight: '174', length: '6000', od: '102', pinSize: '3.5 API IF Pin', boxSize: '3.5 API IF Box', photo: null },
+      { id: 11, name: 'Drill Pipe: 114x8.8 - 6m DIBH', category: 'Drill Pipe', partNumber: '114x8.8 - 6m DIBH', weight: '152', length: '6000', od: '114', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      
+      // COLLAR PIPE
+      { id: 12, name: 'Collar Pipe: 154mm Collar - 3m', category: 'Collar Pipe', partNumber: '154mm Collar - 3m', weight: '150', length: '3000', od: '154', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 13, name: 'Collar Pipe: 154mm Collar - 6m', category: 'Collar Pipe', partNumber: '154mm Collar - 6m', weight: '300', length: '6000', od: '154', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 14, name: 'Collar Pipe: 190mm Collar - 3m', category: 'Collar Pipe', partNumber: '190mm Collar - 3m', weight: '225', length: '3000', od: '190', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 15, name: 'Collar Pipe: 190mm Collar - 6m', category: 'Collar Pipe', partNumber: '190mm Collar - 6m', weight: '450', length: '6000', od: '190', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
+      
+      // ADAPTERS
+      { id: 16, name: 'Adapter: DIBH-API Sub 6" Hammer', category: 'Adapter', partNumber: 'DIBH-API Sub 6" Hammer', weight: '22', length: '280', od: '140', pinSize: '3.5 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 17, name: 'Adapter: DIBH-API Sub 4" Hammer', category: 'Adapter', partNumber: 'DIBH-API Sub 4" Hammer', weight: '12', length: '230', od: '102', pinSize: '2-3/8 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
+      { id: 18, name: 'Adapter: API-API Sub 6" Hammer', category: 'Adapter', partNumber: 'API-API Sub 6" Hammer', weight: '20', length: '250', od: '140', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
+      
+      // DTH HAMMERS
+      { id: 19, name: 'Hammer: Sandvik RH460 6"', category: 'Hammer', partNumber: 'Sandvik RH460 6"', weight: '100', length: '1155', od: '6 inch', pinSize: 'QL60', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 20, name: 'Hammer: Sandvik RH460g 6"', category: 'Hammer', partNumber: 'Sandvik RH460g 6"', weight: '117', length: '1155', od: '6 inch', pinSize: 'QL60', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 21, name: 'Hammer: Sandvik RH510r 6"', category: 'Hammer', partNumber: 'Sandvik RH510r 6"', weight: '82', length: '922', od: '6 inch', pinSize: 'M60', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 22, name: 'Hammer: Sandvik RH560g 6"', category: 'Hammer', partNumber: 'Sandvik RH560g 6"', weight: '117', length: '1158', od: '6 inch', pinSize: '560-6', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 23, name: 'Hammer: Epiroc COP 64 Gold', category: 'Hammer', partNumber: 'Epiroc COP 64 Gold', weight: '103', length: '1255', od: '6 inch', pinSize: 'QL60', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 24, name: 'Hammer: Epiroc COP M6', category: 'Hammer', partNumber: 'Epiroc COP M6', weight: '72', length: '1100', od: '6 inch', pinSize: 'Solid', boxSize: '3.5 API Reg Box', photo: null },
+      { id: 25, name: 'Hammer: Sandvik RH460 4"', category: 'Hammer', partNumber: 'Sandvik RH460 4"', weight: '40', length: '985', od: '4 inch', pinSize: 'DHD340', boxSize: '2-3/8 API Reg Box', photo: null },
+      { id: 26, name: 'Hammer: Sandvik RH510r 4"', category: 'Hammer', partNumber: 'Sandvik RH510r 4"', weight: '38', length: '914', od: '4 inch', pinSize: 'M40', boxSize: '2-3/8 API Reg Box', photo: null },
+      { id: 27, name: 'Hammer: Epiroc COP 44 Gold', category: 'Hammer', partNumber: 'Epiroc COP 44 Gold', weight: '39', length: '1049', od: '4 inch', pinSize: 'TD40', boxSize: '2-3/8 API Reg Box', photo: null },
+      
+      // DTH BITS
+      { id: 28, name: 'Bit: 115mm Concave M40', category: 'Bit', partNumber: '115mm Concave M40', weight: '8.4', length: '280', od: '115', pinSize: '4 inch', boxSize: 'Concave', photo: null },
+      { id: 29, name: 'Bit: 115mm Concave DHD340', category: 'Bit', partNumber: '115mm Concave DHD340', weight: '8.4', length: '280', od: '115', pinSize: '4 inch', boxSize: 'Concave', photo: null },
+      { id: 30, name: 'Bit: 115mm Uniface M40', category: 'Bit', partNumber: '115mm Uniface M40', weight: '9.4', length: '290', od: '115', pinSize: '4 inch', boxSize: 'Uniface', photo: null },
+      { id: 31, name: 'Bit: 127mm Concave M40', category: 'Bit', partNumber: '127mm Concave M40', weight: '12', length: '300', od: '127', pinSize: '4 inch', boxSize: 'Concave', photo: null },
+      { id: 32, name: 'Bit: 127mm Concave QL60', category: 'Bit', partNumber: '127mm Concave QL60', weight: '14', length: '340', od: '127', pinSize: '6 inch', boxSize: 'Concave', photo: null },
+      { id: 33, name: 'Bit: 127mm Uniface M60', category: 'Bit', partNumber: '127mm Uniface M60', weight: '12.5', length: '310', od: '127', pinSize: '6 inch', boxSize: 'Uniface', photo: null },
+      { id: 34, name: 'Bit: 165mm Concave M60', category: 'Bit', partNumber: '165mm Concave M60', weight: '23.5', length: '350', od: '165', pinSize: '6 inch', boxSize: 'Concave', photo: null },
+      { id: 35, name: 'Bit: 165mm Concave QL60', category: 'Bit', partNumber: '165mm Concave QL60', weight: '27.5', length: '380', od: '165', pinSize: '6 inch', boxSize: 'Concave', photo: null },
+      { id: 36, name: 'Bit: 165mm Convex M60', category: 'Bit', partNumber: '165mm Convex M60', weight: '23.5', length: '350', od: '165', pinSize: '6 inch', boxSize: 'Convex', photo: null },
+      { id: 37, name: 'Bit: 165mm Uniface QL60', category: 'Bit', partNumber: '165mm Uniface QL60', weight: '24.5', length: '370', od: '165', pinSize: '6 inch', boxSize: 'Uniface', photo: null },
+    ];
+
     function App() {
       // ==================== STATE ====================
       const [currentPage, setCurrentPage] = useState('fleet');
@@ -42,10 +96,13 @@
         return saved ? saved : null;
       });
 
-      // Consumables Database
+      // Consumables Database - Load from localStorage OR use defaults
       const [consumables, setConsumables] = useState(() => {
         const saved = localStorage.getItem('consumables');
-        return saved ? JSON.parse(saved) : [];
+        if (saved) {
+          return JSON.parse(saved);
+        }
+        return defaultConsumables;
       });
 
       // Drills Database
@@ -69,20 +126,16 @@
         };
       });
 
-      // Authorised Strings - Initialize with test string for DR201
+      // Authorised Strings
       const [authorisedStrings, setAuthorisedStrings] = useState(() => {
         const saved = localStorage.getItem('authorisedStrings');
         return saved ? JSON.parse(saved) : {};
       });
 
-      // Rig String Assignments - Initialize with DR201 having test string
+      // Rig String Assignments
       const [rigStringAssignments, setRigStringAssignments] = useState(() => {
         const saved = localStorage.getItem('rigStringAssignments');
-        if (saved) {
-          return JSON.parse(saved);
-        }
-        // Initialize with empty - no default assignments
-        return {};
+        return saved ? JSON.parse(saved) : {};
       });
 
       // Admin Forms
@@ -100,9 +153,7 @@
         length: '',
         od: '',
         pinSize: '',
-        pinThread: '',
         boxSize: '',
-        boxThread: '',
         photo: null 
       });
 
@@ -206,7 +257,8 @@
           alert('Enter consumable name');
           return;
         }
-        setConsumables([...consumables, { id: Date.now(), ...newConsumable }]);
+        const nextId = consumables.length > 0 ? Math.max(...consumables.map(c => c.id)) + 1 : 1;
+        setConsumables([...consumables, { id: nextId, ...newConsumable }]);
         alert('✓ Consumable added!');
         setNewConsumable({ 
           name: '', 
@@ -216,9 +268,7 @@
           length: '',
           od: '',
           pinSize: '',
-          pinThread: '',
           boxSize: '',
-          boxThread: '',
           photo: null 
         });
         setShowAddConsumable(false);
@@ -370,7 +420,7 @@
                       React.createElement('option', { value: '' }, 'Select component...'),
                       consumables.map(c =>
                         React.createElement('option', { key: c.id, value: c.id }, 
-                          `${c.name} (${c.category})`)
+                          `${c.name}`)
                       )
                     )
                   ),
@@ -399,14 +449,14 @@
               ),
               React.createElement('div', { className: 'lg:col-span-1' },
                 React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6 sticky top-6' },
-                  React.createElement('h4', { className: 'text-blue-400 font-bold mb-4' }, '👀 Component Stack Preview'),
+                  React.createElement('h4', { className: 'text-blue-400 font-bold mb-4' }, '👀 Preview'),
                   React.createElement('div', { className: 'flex flex-col items-center gap-1 min-h-64' },
-                    newStringComponents.length === 0 && React.createElement('p', { className: 'text-gray-400 text-sm text-center' }, 'Add components to see preview'),
+                    newStringComponents.length === 0 && React.createElement('p', { className: 'text-gray-400 text-sm text-center' }, 'Add components to preview'),
                     newStringComponents.map((comp, idx) =>
                       React.createElement('div', {
                         key: idx,
                         className: 'w-24 h-12 rounded text-xs text-center py-1 bg-gradient-to-b from-blue-600 to-blue-700 text-white font-bold shadow-lg flex items-center justify-center'
-                      }, comp.name.split(' ')[0])
+                      }, comp.name.split(':')[0])
                     )
                   )
                 )
@@ -429,15 +479,15 @@
           ),
           React.createElement('div', { className: 'max-w-6xl mx-auto p-6' },
             React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
-              React.createElement('h2', { className: 'text-2xl font-bold text-blue-400 mb-6' }, '➕ Add Consumable Item'),
+              React.createElement('h2', { className: 'text-2xl font-bold text-blue-400 mb-2' }, '➕ Add Consumable Item'),
+              React.createElement('p', { className: 'text-gray-400 mb-6 text-sm' }, `Approved consumables loaded: ${defaultConsumables.length} items available`),
               
               React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6' },
-                // Basic Info
                 React.createElement('div', null,
                   React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Item Name *'),
                   React.createElement('input', {
                     type: 'text',
-                    placeholder: 'e.g., SCS Assembly',
+                    placeholder: 'e.g., Shock Sub: Montrae 4600',
                     value: newConsumable.name,
                     onChange: (e) => setNewConsumable({ ...newConsumable, name: e.target.value }),
                     className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
@@ -447,7 +497,7 @@
                   React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Category *'),
                   React.createElement('input', {
                     type: 'text',
-                    placeholder: 'e.g., Spindle',
+                    placeholder: 'e.g., Shock Sub, Hammer, Bit',
                     value: newConsumable.category,
                     onChange: (e) => setNewConsumable({ ...newConsumable, category: e.target.value }),
                     className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
@@ -457,19 +507,17 @@
                   React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Part Number'),
                   React.createElement('input', {
                     type: 'text',
-                    placeholder: 'e.g., PN-001',
+                    placeholder: 'e.g., Montrae 4600',
                     value: newConsumable.partNumber,
                     onChange: (e) => setNewConsumable({ ...newConsumable, partNumber: e.target.value }),
                     className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
                   })
                 ),
-
-                // Dimensions
                 React.createElement('div', null,
                   React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Weight (kg)'),
                   React.createElement('input', {
                     type: 'text',
-                    placeholder: 'e.g., 45',
+                    placeholder: 'e.g., 442',
                     value: newConsumable.weight,
                     onChange: (e) => setNewConsumable({ ...newConsumable, weight: e.target.value }),
                     className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
@@ -479,7 +527,7 @@
                   React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Length (mm)'),
                   React.createElement('input', {
                     type: 'text',
-                    placeholder: 'e.g., 150',
+                    placeholder: 'e.g., 562',
                     value: newConsumable.length,
                     onChange: (e) => setNewConsumable({ ...newConsumable, length: e.target.value }),
                     className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
@@ -489,14 +537,12 @@
                   React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Outside Diameter (mm)'),
                   React.createElement('input', {
                     type: 'text',
-                    placeholder: 'e.g., 65',
+                    placeholder: 'e.g., 200',
                     value: newConsumable.od,
                     onChange: (e) => setNewConsumable({ ...newConsumable, od: e.target.value }),
                     className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
                   })
                 ),
-
-                // Pin
                 React.createElement('div', null,
                   React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Pin Size/Thread'),
                   React.createElement('input', {
@@ -507,8 +553,6 @@
                     className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
                   })
                 ),
-
-                // Box
                 React.createElement('div', null,
                   React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Box Size/Thread'),
                   React.createElement('input', {
@@ -519,8 +563,6 @@
                     className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
                   })
                 ),
-
-                // Photo
                 React.createElement('div', null,
                   React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, '📸 Upload Photo'),
                   React.createElement('input', {
@@ -532,7 +574,6 @@
                 )
               ),
 
-              // Photo Preview
               newConsumable.photo && React.createElement('div', { className: 'mb-6' },
                 React.createElement('h4', { className: 'text-blue-300 font-bold mb-2' }, 'Photo Preview:'),
                 React.createElement('img', {
@@ -541,7 +582,6 @@
                 })
               ),
 
-              // Specs Preview
               React.createElement('div', { className: 'bg-slate-600/50 p-4 rounded mb-6' },
                 React.createElement('h4', { className: 'text-blue-300 font-bold mb-3' }, '📋 Specification Summary:'),
                 React.createElement('div', { className: 'grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-300' },
@@ -649,7 +689,7 @@
               React.createElement('button', {
                 onClick: () => setAdminTab('consumables'),
                 className: `px-4 py-2 rounded font-bold ${adminTab === 'consumables' ? 'bg-blue-600' : 'bg-slate-600'}`
-              }, '🧩 Consumables'),
+              }, `🧩 Consumables (${consumables.length})`),
               React.createElement('button', {
                 onClick: () => setAdminTab('drills'),
                 className: `px-4 py-2 rounded font-bold ${adminTab === 'drills' ? 'bg-blue-600' : 'bg-slate-600'}`
@@ -664,7 +704,7 @@
             adminTab === 'logo' && React.createElement('div', { className: 'space-y-4' },
               React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
                 React.createElement('h3', { className: 'text-xl font-bold text-blue-400 mb-4' }, '🎨 Company Logo'),
-                React.createElement('p', { className: 'text-gray-300 mb-4' }, 'Upload your company logo (appears on all pages and printouts)'),
+                React.createElement('p', { className: 'text-gray-300 mb-4' }, 'Upload your company logo'),
                 
                 logoImage && React.createElement('div', { className: 'mb-4 p-4 bg-slate-600/50 rounded text-center' },
                   React.createElement('h4', { className: 'text-blue-300 font-bold mb-3' }, 'Current Logo:'),
@@ -684,8 +724,7 @@
                     accept: 'image/*',
                     onChange: handleLogoUpload,
                     className: 'block w-full text-white mb-2'
-                  }),
-                  React.createElement('p', { className: 'text-gray-400 text-sm' }, 'PNG, JPG recommended (square or landscape format works best)')
+                  })
                 )
               )
             ),
@@ -727,7 +766,12 @@
               React.createElement('button', {
                 onClick: () => setShowAddConsumable(true),
                 className: 'w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-lg font-bold'
-              }, '➕ Add Consumable'),
+              }, '➕ Add Custom Consumable'),
+              React.createElement('div', { className: 'bg-blue-900/20 border border-blue-500/50 rounded-lg p-4 mb-4' },
+                React.createElement('p', { className: 'text-blue-300 text-sm' },
+                  `✓ ${defaultConsumables.length} approved consumables pre-loaded from D65 Excel | + ${consumables.length - defaultConsumables.length} custom items added`
+                )
+              ),
               React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' },
                 consumables.map(cons =>
                   React.createElement('div', { key: cons.id, className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-4' },
@@ -735,12 +779,12 @@
                       src: cons.photo,
                       className: 'w-full h-32 object-cover rounded mb-2'
                     }),
-                    React.createElement('div', { className: 'font-bold text-blue-300' }, cons.name),
-                    React.createElement('div', { className: 'text-xs text-gray-400 mb-2' }, `${cons.category} | ${cons.partNumber}`),
+                    React.createElement('div', { className: 'font-bold text-blue-300 text-sm' }, cons.name.length > 30 ? cons.name.substring(0, 30) + '...' : cons.name),
+                    React.createElement('div', { className: 'text-xs text-gray-400 mb-2' }, cons.category),
                     React.createElement('div', { className: 'text-xs text-gray-500 space-y-1 mb-2' },
-                      cons.weight && React.createElement('div', null, `Weight: ${cons.weight}kg`),
+                      cons.weight && React.createElement('div', null, `Wt: ${cons.weight}kg`),
                       cons.od && React.createElement('div', null, `OD: ${cons.od}mm`),
-                      cons.pinSize && React.createElement('div', null, `Pin: ${cons.pinSize}`)
+                      cons.pinSize && React.createElement('div', null, `Pin: ${cons.pinSize.substring(0, 15)}`)
                     ),
                     React.createElement('button', {
                       onClick: () => removeConsumable(cons.id),
@@ -839,7 +883,7 @@
         );
       }
 
-      // ==================== RIG DETAIL & STRING MANAGEMENT ====================
+      // ==================== RIG DETAIL ====================
       if (currentPage === 'detail') {
         const drill = drills[selectedRig];
         const assignedStringId = rigStringAssignments[selectedRig];
@@ -883,7 +927,6 @@
               ),
 
               React.createElement('div', { className: 'grid grid-cols-3 gap-8' },
-                // Left: Components Visual
                 React.createElement('div', { className: 'col-span-1 border-r-4 border-black pr-8' },
                   React.createElement('h3', { className: 'text-lg font-bold mb-4 text-center border-b-2 border-black pb-2' }, 'Drill String Assembly'),
                   React.createElement('div', { className: 'flex flex-col items-center gap-1' },
@@ -892,13 +935,12 @@
                         key: idx,
                         className: 'w-32 border-3 border-black bg-gray-200 text-center py-3 text-xs font-bold h-16 flex items-center justify-center'
                       },
-                        comp.name
+                        comp.name.substring(0, 20)
                       )
                     )
                   )
                 ),
 
-                // Center & Right: Component Details
                 React.createElement('div', { className: 'col-span-2' },
                   React.createElement('h3', { className: 'text-lg font-bold mb-3 border-b-2 border-black pb-2' }, 'Component Details'),
                   React.createElement('table', { className: 'w-full border-collapse text-sm' },
@@ -906,8 +948,7 @@
                       React.createElement('tr', { className: 'bg-gray-300' },
                         React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Component'),
                         React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'PN'),
-                        React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Wt(kg)'),
-                        React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Length'),
+                        React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Wt'),
                         React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'OD'),
                         React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Pin/Box')
                       )
@@ -915,12 +956,11 @@
                     React.createElement('tbody', null,
                       assignedString.components.map((comp, idx) =>
                         React.createElement('tr', { key: idx, className: idx % 2 === 0 ? 'bg-white' : 'bg-gray-100' },
-                          React.createElement('td', { className: 'border-2 border-black p-1 font-bold text-xs' }, comp.name.substring(0, 20)),
+                          React.createElement('td', { className: 'border-2 border-black p-1 font-bold text-xs' }, comp.name.substring(0, 18)),
                           React.createElement('td', { className: 'border-2 border-black p-1 text-xs' }, comp.partNumber || '-'),
-                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs text-center' }, comp.weight || '-'),
-                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs text-center' }, comp.length ? `${comp.length}mm` : '-'),
-                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs text-center' }, comp.od ? `${comp.od}mm` : '-'),
-                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs' }, `${comp.pinSize ? comp.pinSize.substring(0, 10) : ''} / ${comp.boxSize ? comp.boxSize.substring(0, 10) : ''}`)
+                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs' }, comp.weight || '-'),
+                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs' }, comp.od ? `${comp.od}` : '-'),
+                          React.createElement('td', { className: 'border-2 border-black p-1 text-xs' }, `${comp.pinSize ? comp.pinSize.substring(0, 8) : ''} / ${comp.boxSize ? comp.boxSize.substring(0, 8) : ''}`)
                         )
                       )
                     )
@@ -929,7 +969,7 @@
               ),
 
               React.createElement('div', { className: 'mt-8 border-t-4 border-black pt-4 text-center text-sm' },
-                React.createElement('p', null, '✓ Post this at the drill laydown - No Confusion!'),
+                React.createElement('p', null, '✓ Post at drill laydown - No Confusion!'),
                 React.createElement('p', { className: 'text-gray-600' }, `Printed: ${new Date().toLocaleString()}`)
               )
             )
@@ -943,7 +983,6 @@
             }, '← Back to Fleet'),
 
             React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-3 gap-6' },
-              // Drill Info
               React.createElement('div', { className: 'space-y-4' },
                 React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
                   drill.photo && React.createElement('img', {
@@ -970,7 +1009,6 @@
                 )
               ),
 
-              // String Management
               React.createElement('div', { className: 'lg:col-span-2' },
                 React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
                   React.createElement('h3', { className: 'text-2xl font-bold text-blue-400 mb-6' }, '⛓️ Authorised Drill String'),
@@ -1005,7 +1043,7 @@
                                 src: comp.photo,
                                 className: 'w-20 h-20 object-cover rounded mb-1'
                               }),
-                              React.createElement('span', null, comp.name.split(' ')[0])
+                              React.createElement('span', null, comp.name.split(':')[0])
                             )
                           )
                         )
