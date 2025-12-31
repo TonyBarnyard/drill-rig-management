@@ -17,6 +17,8 @@
     .drill-photo { width: 150px; height: 150px; object-fit: cover; border-radius: 8px; }
     .component-tile { transition: transform 0.2s; }
     .component-tile:hover { transform: scale(1.05); }
+    .logo-display { max-width: 150px; max-height: 100px; object-fit: contain; }
+    .logo-print { max-width: 120px; max-height: 80px; object-fit: contain; }
   </style>
 </head>
 <body>
@@ -33,6 +35,12 @@
       const [adminPassword, setAdminPassword] = useState('admin123');
       const [showLoginPrompt, setShowLoginPrompt] = useState(false);
       const [loginAttempt, setLoginAttempt] = useState('');
+
+      // Logo State
+      const [logoImage, setLogoImage] = useState(() => {
+        const saved = localStorage.getItem('companyLogo');
+        return saved ? saved : null;
+      });
 
       // Consumables Database
       const [consumables, setConsumables] = useState(() => {
@@ -109,6 +117,12 @@
         localStorage.setItem('rigStringAssignments', JSON.stringify(rigStringAssignments));
       }, [rigStringAssignments]);
 
+      useEffect(() => {
+        if (logoImage) {
+          localStorage.setItem('companyLogo', logoImage);
+        }
+      }, [logoImage]);
+
       // ==================== HANDLERS ====================
       const handleAdminLogin = () => {
         if (loginAttempt === adminPassword) {
@@ -124,6 +138,26 @@
       const handleLogout = () => {
         setAdminMode(false);
         setAdminTab('strings');
+      };
+
+      const handleLogoUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setLogoImage(reader.result);
+            alert('✓ Logo uploaded!');
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      const removeLogo = () => {
+        if (confirm('Remove logo?')) {
+          setLogoImage(null);
+          localStorage.removeItem('companyLogo');
+          alert('✓ Logo removed');
+        }
       };
 
       const createDrillString = () => {
@@ -237,13 +271,7 @@
         alert(`✓ String assigned to ${selectedRig}`);
       };
 
-      const printDrillString = () => {
-        window.print();
-      };
-
-      // ==================== COMPONENTS ====================
-
-      // LOGIN SCREEN
+      // ==================== LOGIN SCREEN ====================
       if (showLoginPrompt) {
         return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4' },
           React.createElement('div', { className: 'bg-gradient-to-br from-slate-800 to-slate-900 border border-red-500/30 rounded-lg p-8 max-w-sm w-full' },
@@ -270,7 +298,6 @@
 
       // ==================== ADMIN - CREATE STRING ====================
       if (adminMode && showCreateString) {
-        const drillTypeStrings = Object.values(authorisedStrings).filter(s => s.drillType === newStringDrillType);
         return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
           React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
             React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between' },
@@ -490,6 +517,10 @@
         return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white no-print' },
           React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
             React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between items-center' },
+              logoImage && React.createElement('img', {
+                src: logoImage,
+                className: 'logo-display'
+              }),
               React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⚙️ Admin Panel'),
               React.createElement('button', {
                 onClick: handleLogout,
@@ -498,7 +529,7 @@
             )
           ),
           React.createElement('div', { className: 'max-w-7xl mx-auto p-6' },
-            React.createElement('div', { className: 'flex gap-2 mb-6' },
+            React.createElement('div', { className: 'flex gap-2 mb-6 flex-wrap' },
               React.createElement('button', {
                 onClick: () => setAdminTab('strings'),
                 className: `px-4 py-2 rounded font-bold ${adminTab === 'strings' ? 'bg-blue-600' : 'bg-slate-600'}`
@@ -510,7 +541,41 @@
               React.createElement('button', {
                 onClick: () => setAdminTab('drills'),
                 className: `px-4 py-2 rounded font-bold ${adminTab === 'drills' ? 'bg-blue-600' : 'bg-slate-600'}`
-              }, '⛏️ Drills')
+              }, '⛏️ Drills'),
+              React.createElement('button', {
+                onClick: () => setAdminTab('logo'),
+                className: `px-4 py-2 rounded font-bold ${adminTab === 'logo' ? 'bg-blue-600' : 'bg-slate-600'}`
+              }, '🎨 Logo')
+            ),
+
+            // LOGO TAB
+            adminTab === 'logo' && React.createElement('div', { className: 'space-y-4' },
+              React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
+                React.createElement('h3', { className: 'text-xl font-bold text-blue-400 mb-4' }, '🎨 Company Logo'),
+                React.createElement('p', { className: 'text-gray-300 mb-4' }, 'Upload your company logo (appears on all pages and printouts)'),
+                
+                logoImage && React.createElement('div', { className: 'mb-4 p-4 bg-slate-600/50 rounded text-center' },
+                  React.createElement('h4', { className: 'text-blue-300 font-bold mb-3' }, 'Current Logo:'),
+                  React.createElement('img', {
+                    src: logoImage,
+                    className: 'logo-display mx-auto mb-4'
+                  }),
+                  React.createElement('button', {
+                    onClick: removeLogo,
+                    className: 'bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-bold'
+                  }, '✕ Remove Logo')
+                ),
+
+                React.createElement('div', { className: 'border-2 border-dashed border-blue-500/50 rounded-lg p-6 text-center' },
+                  React.createElement('input', {
+                    type: 'file',
+                    accept: 'image/*',
+                    onChange: handleLogoUpload,
+                    className: 'block w-full text-white mb-2'
+                  }),
+                  React.createElement('p', { className: 'text-gray-400 text-sm' }, 'PNG, JPG recommended (square or landscape format works best)')
+                )
+              )
             ),
 
             // STRINGS TAB
@@ -613,7 +678,13 @@
         return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white no-print' },
           React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4 sticky top-0' },
             React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between items-center' },
-              React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⛏️ Drill Rig Management'),
+              React.createElement('div', { className: 'flex items-center gap-4' },
+                logoImage && React.createElement('img', {
+                  src: logoImage,
+                  className: 'logo-display'
+                }),
+                React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⛏️ Drill Rig Management')
+              ),
               React.createElement('button', {
                 onClick: () => setShowLoginPrompt(true),
                 className: 'bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-bold'
@@ -661,7 +732,13 @@
         return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
           React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4 sticky top-0 no-print' },
             React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between items-center' },
-              React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⛏️ Drill Rig Management'),
+              React.createElement('div', { className: 'flex items-center gap-4' },
+                logoImage && React.createElement('img', {
+                  src: logoImage,
+                  className: 'logo-display'
+                }),
+                React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⛏️ Drill Rig Management')
+              ),
               React.createElement('button', {
                 onClick: () => setShowLoginPrompt(true),
                 className: 'bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-bold'
@@ -669,24 +746,34 @@
             )
           ),
 
-          // Display Mode
+          // Print Layout
           assignedString && React.createElement('div', { className: 'print-only w-full' },
             React.createElement('div', { className: 'p-8 bg-white text-black' },
-              React.createElement('div', { className: 'text-center mb-8' },
-                React.createElement('h1', { className: 'text-4xl font-bold mb-2' }, `${selectedRig} - Authorised Drill String`),
-                React.createElement('h2', { className: 'text-2xl text-gray-700 mb-4' }, assignedString.name),
-                React.createElement('p', { className: 'text-gray-600' }, `Drill Type: ${assignedString.drillType}`)
+              React.createElement('div', { className: 'flex justify-between items-start mb-6' },
+                logoImage && React.createElement('img', {
+                  src: logoImage,
+                  className: 'logo-print'
+                }),
+                React.createElement('div', { className: 'text-right' },
+                  React.createElement('h1', { className: 'text-3xl font-bold mb-2' }, selectedRig),
+                  React.createElement('h2', { className: 'text-xl text-gray-700 mb-1' }, 'Authorised Drill String'),
+                  React.createElement('p', { className: 'text-gray-600 font-bold' }, assignedString.name)
+                )
+              ),
+
+              React.createElement('div', { className: 'border-4 border-black mb-6 p-4' },
+                React.createElement('p', { className: 'text-sm' }, `Drill Type: ${assignedString.drillType} | Date: ${new Date().toLocaleDateString()}`)
               ),
 
               React.createElement('div', { className: 'grid grid-cols-3 gap-8' },
                 // Left: Components Visual
                 React.createElement('div', { className: 'col-span-1 border-r-4 border-black pr-8' },
-                  React.createElement('h3', { className: 'text-xl font-bold mb-4 text-center' }, 'Drill String Assembly'),
-                  React.createElement('div', { className: 'flex flex-col items-center gap-2' },
+                  React.createElement('h3', { className: 'text-lg font-bold mb-4 text-center border-b-2 border-black pb-2' }, 'Drill String Assembly'),
+                  React.createElement('div', { className: 'flex flex-col items-center gap-1' },
                     assignedString.components.map((comp, idx) =>
                       React.createElement('div', {
                         key: idx,
-                        className: 'w-32 border-4 border-black bg-gray-300 text-center py-3 text-sm font-bold'
+                        className: 'w-32 border-3 border-black bg-gray-200 text-center py-3 text-xs font-bold h-16 flex items-center justify-center'
                       },
                         comp.name
                       )
@@ -696,21 +783,21 @@
 
                 // Center & Right: Component Details
                 React.createElement('div', { className: 'col-span-2' },
-                  React.createElement('h3', { className: 'text-xl font-bold mb-4' }, 'Component Details'),
-                  React.createElement('table', { className: 'w-full border-collapse border-4 border-black' },
+                  React.createElement('h3', { className: 'text-lg font-bold mb-3 border-b-2 border-black pb-2' }, 'Component Details'),
+                  React.createElement('table', { className: 'w-full border-collapse' },
                     React.createElement('thead', null,
-                      React.createElement('tr', { className: 'bg-gray-200' },
-                        React.createElement('th', { className: 'border-2 border-black p-2' }, 'Component'),
-                        React.createElement('th', { className: 'border-2 border-black p-2' }, 'Category'),
-                        React.createElement('th', { className: 'border-2 border-black p-2' }, 'Part Number')
+                      React.createElement('tr', { className: 'bg-gray-300' },
+                        React.createElement('th', { className: 'border-2 border-black p-2 text-left' }, 'Component'),
+                        React.createElement('th', { className: 'border-2 border-black p-2 text-left' }, 'Category'),
+                        React.createElement('th', { className: 'border-2 border-black p-2 text-left' }, 'Part Number')
                       )
                     ),
                     React.createElement('tbody', null,
                       assignedString.components.map((comp, idx) =>
-                        React.createElement('tr', { key: idx },
-                          React.createElement('td', { className: 'border-2 border-black p-2' }, comp.name),
+                        React.createElement('tr', { key: idx, className: idx % 2 === 0 ? 'bg-white' : 'bg-gray-100' },
+                          React.createElement('td', { className: 'border-2 border-black p-2 font-bold' }, comp.name),
                           React.createElement('td', { className: 'border-2 border-black p-2' }, comp.category || '-'),
-                          React.createElement('td', { className: 'border-2 border-black p-2 font-mono' }, comp.partNumber || '-')
+                          React.createElement('td', { className: 'border-2 border-black p-2 font-mono text-sm' }, comp.partNumber || '-')
                         )
                       )
                     )
@@ -718,9 +805,9 @@
                 )
               ),
 
-              React.createElement('div', { className: 'mt-8 text-center text-gray-600 text-sm' },
-                React.createElement('p', null, 'Date Printed: ' + new Date().toLocaleDateString()),
-                React.createElement('p', null, 'Post this at the drill laydown - No Confusion!')
+              React.createElement('div', { className: 'mt-8 border-t-4 border-black pt-4 text-center text-sm' },
+                React.createElement('p', null, '✓ Post this at the drill laydown - No Confusion!'),
+                React.createElement('p', { className: 'text-gray-600' }, `Printed: ${new Date().toLocaleString()}`)
               )
             )
           ),
@@ -771,7 +858,7 @@
                         React.createElement('div', { className: 'text-green-400 font-bold mb-3' }, `✓ Current: ${assignedString.name}`),
                         React.createElement('div', { className: 'flex gap-2' },
                           React.createElement('button', {
-                            onClick: () => setShowPrint(true),
+                            onClick: () => window.print(),
                             className: 'bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded'
                           }, '🖨️ Print String'),
                           React.createElement('button', {
