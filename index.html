@@ -153,10 +153,14 @@
       // ADMIN UI STATE
       const [adminTab, setAdminTab] = useState('strings');
       const [showCreateString, setShowCreateString] = useState(false);
+      const [showEditString, setShowEditString] = useState(false);
+      const [selectedStringToEdit, setSelectedStringToEdit] = useState(null);
       const [showAddConsumable, setShowAddConsumable] = useState(false);
       const [showEditConsumable, setShowEditConsumable] = useState(false);
       const [selectedConsumableToEdit, setSelectedConsumableToEdit] = useState(null);
       const [showAddDrill, setShowAddDrill] = useState(false);
+      const [showEditDrill, setShowEditDrill] = useState(false);
+      const [selectedDrillToEdit, setSelectedDrillToEdit] = useState(null);
 
       // FORM STATE
       const [newConsumable, setNewConsumable] = useState({ name: '', category: '', partNumber: '', weight: '', length: '', od: '', pinSize: '', boxSize: '', photo: null });
@@ -164,9 +168,13 @@
       const [newStringName, setNewStringName] = useState('');
       const [newStringDrillType, setNewStringDrillType] = useState('Epiroc D65');
       const [newStringComponents, setNewStringComponents] = useState([]);
+      const [editingStringName, setEditingStringName] = useState('');
+      const [editingStringComponents, setEditingStringComponents] = useState([]);
       const [newDrillId, setNewDrillId] = useState('DR301');
       const [newDrillType, setNewDrillType] = useState('Epiroc D65');
       const [newDrillPhoto, setNewDrillPhoto] = useState(null);
+      const [editingDrillType, setEditingDrillType] = useState('Epiroc D65');
+      const [editingDrillPhoto, setEditingDrillPhoto] = useState(null);
 
       // PERSISTENCE
       useEffect(() => { try { localStorage.setItem('consumables', JSON.stringify(consumables)); } catch (e) {} }, [consumables]);
@@ -240,8 +248,22 @@
 
       const saveEditConsumable = () => {
         if (!editingConsumable.name.trim()) { alert('Enter consumable name'); return; }
-        setConsumables(consumables.map(c => c.id === selectedConsumableToEdit ? editingConsumable : c));
-        alert('✓ Consumable updated!');
+        const updatedConsumables = consumables.map(c => c.id === selectedConsumableToEdit ? editingConsumable : c);
+        setConsumables(updatedConsumables);
+        
+        // AUTO-UPDATE STRINGS: Find all strings using this consumable and update them
+        const updatedStrings = { ...authorisedStrings };
+        Object.keys(updatedStrings).forEach(stringId => {
+          updatedStrings[stringId] = {
+            ...updatedStrings[stringId],
+            components: updatedStrings[stringId].components.map(comp => 
+              comp.id === selectedConsumableToEdit ? editingConsumable : comp
+            )
+          };
+        });
+        setAuthorisedStrings(updatedStrings);
+        
+        alert('✓ Consumable updated! (Strings auto-updated)');
         setShowEditConsumable(false);
         setSelectedConsumableToEdit(null);
         setEditingConsumable({ name: '', category: '', partNumber: '', weight: '', length: '', od: '', pinSize: '', boxSize: '', photo: null });
@@ -251,6 +273,45 @@
         if (confirm('Remove this consumable?')) {
           setConsumables(consumables.filter(c => c.id !== id));
         }
+      };
+
+      const startEditString = (stringId) => {
+        const str = authorisedStrings[stringId];
+        setSelectedStringToEdit(stringId);
+        setEditingStringName(str.name);
+        setEditingStringComponents([...str.components]);
+        setShowEditString(true);
+      };
+
+      const saveEditString = () => {
+        if (!editingStringName.trim()) { alert('Enter string name'); return; }
+        if (editingStringComponents.length === 0) { alert('Add at least one component'); return; }
+        setAuthorisedStrings({
+          ...authorisedStrings,
+          [selectedStringToEdit]: { ...authorisedStrings[selectedStringToEdit], name: editingStringName, components: editingStringComponents }
+        });
+        alert('✓ String updated!');
+        setShowEditString(false);
+        setSelectedStringToEdit(null);
+        setEditingStringName('');
+        setEditingStringComponents([]);
+      };
+
+      const startEditDrill = (rigId) => {
+        const drill = drills[rigId];
+        setSelectedDrillToEdit(rigId);
+        setEditingDrillType(drill.type);
+        setEditingDrillPhoto(drill.photo);
+        setShowEditDrill(true);
+      };
+
+      const saveEditDrill = () => {
+        setDrills({ ...drills, [selectedDrillToEdit]: { ...drills[selectedDrillToEdit], type: editingDrillType, photo: editingDrillPhoto } });
+        alert('✓ Drill updated!');
+        setShowEditDrill(false);
+        setSelectedDrillToEdit(null);
+        setEditingDrillType('Epiroc D65');
+        setEditingDrillPhoto(null);
       };
 
       const addDrill = () => {
@@ -278,6 +339,7 @@
             if (target === 'consumable') setNewConsumable({ ...newConsumable, photo: reader.result });
             else if (target === 'edit') setEditingConsumable({ ...editingConsumable, photo: reader.result });
             else if (target === 'drill') setNewDrillPhoto(reader.result);
+            else if (target === 'editdrill') setEditingDrillPhoto(reader.result);
           };
           reader.readAsDataURL(file);
         }
@@ -454,7 +516,99 @@
         );
       }
 
-      // ==================== ADD DRILL ====================
+      // ==================== EDIT STRING ====================
+      if (adminMode && showEditString && selectedStringToEdit) {
+        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
+          React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
+            React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between' },
+              React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '✏️ Edit Drill String'),
+              React.createElement('button', { onClick: () => { setShowEditString(false); setSelectedStringToEdit(null); }, className: 'bg-gray-600 text-white px-4 py-2 rounded border-0 cursor-pointer' }, 'Back')
+            )
+          ),
+          React.createElement('div', { className: 'max-w-7xl mx-auto p-6' },
+            React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-3 gap-6' },
+              React.createElement('div', { className: 'lg:col-span-2' },
+                React.createElement('div', { className: 'bg-slate-700 border border-blue-500/30 rounded-lg p-6' },
+                  React.createElement('h3', { className: 'text-xl font-bold text-blue-400 mb-4' }, '📝 String Details'),
+                  React.createElement('input', { type: 'text', placeholder: 'String name', value: editingStringName, onChange: (e) => setEditingStringName(e.target.value), className: 'w-full bg-slate-600 text-white rounded px-4 py-2 mb-4 border-0' }),
+                  React.createElement('h4', { className: 'text-blue-300 font-bold mb-3' }, '🧩 Current Components'),
+                  React.createElement('select', {
+                    onChange: (e) => {
+                      const comp = consumables.find(c => c.id === parseInt(e.target.value));
+                      if (comp && !editingStringComponents.some(c => c.id === comp.id)) {
+                        setEditingStringComponents([...editingStringComponents, comp]);
+                      }
+                      e.target.value = '';
+                    },
+                    className: 'w-full bg-slate-600 text-white rounded px-4 py-2 mb-4 border-0'
+                  },
+                    React.createElement('option', { value: '' }, '-- Add component --'),
+                    consumables.map(c => React.createElement('option', { key: c.id, value: c.id }, `${c.name}`))
+                  ),
+                  React.createElement('div', { className: 'space-y-2 mb-4 max-h-96 overflow-y-auto' },
+                    editingStringComponents.map((comp, idx) =>
+                      React.createElement('div', { key: idx, className: 'bg-slate-600/50 p-3 rounded flex flex-col border border-blue-400' },
+                        React.createElement('div', { className: 'flex justify-between items-start mb-2' },
+                          React.createElement('div', null,
+                            React.createElement('div', { className: 'text-blue-300 font-bold text-sm' }, `${idx + 1}. ${comp.name}`),
+                            React.createElement('div', { className: 'text-xs text-gray-400' }, `${comp.category} | ${comp.weight}kg`)
+                          ),
+                          React.createElement('button', { onClick: () => setEditingStringComponents(editingStringComponents.filter((_, i) => i !== idx)), className: 'text-red-400 hover:text-red-300 font-bold border-0 cursor-pointer' }, '✕')
+                        ),
+                        comp.photo && React.createElement('img', { src: comp.photo, className: 'w-full h-32 object-contain rounded mt-2' })
+                      )
+                    )
+                  ),
+                  React.createElement('button', { onClick: saveEditString, className: 'w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded font-bold border-0 cursor-pointer' }, '✓ Save Changes')
+                )
+              ),
+              React.createElement('div', { className: 'bg-slate-700 border border-blue-500/30 rounded-lg p-6 sticky top-6' },
+                React.createElement('h4', { className: 'text-blue-300 font-bold mb-4' }, '👀 Preview'),
+                React.createElement('div', { className: 'flex flex-col items-center gap-2 min-h-96 bg-slate-600/30 p-4 rounded overflow-y-auto' },
+                  editingStringComponents.length === 0 && React.createElement('p', { className: 'text-gray-400 text-sm mt-10' }, 'Add components to preview'),
+                  editingStringComponents.map((comp, idx) =>
+                    React.createElement('div', { key: idx, className: 'w-full max-w-xs bg-slate-600 rounded border border-blue-400 p-4 flex flex-col items-center' },
+                      React.createElement('div', { className: 'text-xs text-gray-400 mb-2' }, `${idx + 1}. ${comp.category}`),
+                      comp.photo ? 
+                        React.createElement('img', { src: comp.photo, className: 'w-full h-32 object-contain rounded mb-2' })
+                        :
+                        React.createElement('div', { className: 'w-full h-32 bg-slate-500 rounded flex items-center justify-center mb-2' }, React.createElement('span', { className: 'text-xs text-gray-400' }, 'No photo')),
+                      React.createElement('div', { className: 'text-xs text-white font-bold text-center' }, comp.name),
+                      React.createElement('div', { className: 'text-xs text-gray-300 mt-1' }, `${comp.weight}kg`)
+                    )
+                  )
+                )
+              )
+            )
+          )
+        );
+      }
+
+      // ==================== EDIT DRILL ====================
+      if (adminMode && showEditDrill && selectedDrillToEdit) {
+        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
+          React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
+            React.createElement('div', { className: 'max-w-4xl mx-auto flex justify-between' },
+              React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '✏️ Edit Drill'),
+              React.createElement('button', { onClick: () => { setShowEditDrill(false); setSelectedDrillToEdit(null); }, className: 'bg-gray-600 text-white px-4 py-2 rounded border-0 cursor-pointer' }, 'Back')
+            )
+          ),
+          React.createElement('div', { className: 'max-w-4xl mx-auto p-6' },
+            React.createElement('div', { className: 'bg-slate-700 border border-blue-500/30 rounded-lg p-6' },
+              React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-4 mb-4' },
+                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-2' }, 'Drill ID'), React.createElement('input', { type: 'text', value: selectedDrillToEdit, disabled: true, className: 'w-full bg-slate-600 text-gray-400 rounded px-4 py-2 border-0' })),
+                React.createElement('select', { value: editingDrillType, onChange: (e) => setEditingDrillType(e.target.value), className: 'bg-slate-600 text-white rounded px-4 py-2 border-0' },
+                  React.createElement('option', null, 'Epiroc D65'),
+                  React.createElement('option', null, 'CAT MD6250')
+                ),
+                React.createElement('div', { className: 'md:col-span-2' }, React.createElement('label', { className: 'text-gray-300 block mb-2' }, '📸 Drill Photo'), React.createElement('input', { type: 'file', accept: 'image/*', onChange: (e) => handlePhotoUpload(e, 'editdrill'), className: 'block w-full text-white' }))
+              ),
+              editingDrillPhoto && React.createElement('div', { className: 'mb-4 text-center' }, React.createElement('img', { src: editingDrillPhoto, className: 'w-32 h-32 object-cover rounded mx-auto' })),
+              React.createElement('button', { onClick: saveEditDrill, className: 'w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded font-bold border-0 cursor-pointer' }, '✓ Save Changes')
+            )
+          )
+        );
+      }
       if (adminMode && showAddDrill) {
         return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
           React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
@@ -509,11 +663,14 @@
                   React.createElement('p', { className: 'text-gray-400' }, 'No strings created')
                   :
                   React.createElement('div', { className: 'space-y-3' },
-                    Object.values(authorisedStrings).map((str) =>
+                    Object.entries(authorisedStrings).map(([stringId, str]) =>
                       React.createElement('div', { key: str.id, className: 'bg-slate-600/50 p-4 rounded border border-slate-500' },
                         React.createElement('div', { className: 'font-bold text-blue-300 mb-1' }, str.name),
                         React.createElement('div', { className: 'text-xs text-gray-400' }, `Type: ${str.drillType} | ${str.components.length} components`),
-                        React.createElement('button', { onClick: () => { const newStrings = { ...authorisedStrings }; delete newStrings[str.id]; setAuthorisedStrings(newStrings); }, className: 'text-red-400 text-sm mt-2 border-0 cursor-pointer hover:text-red-300' }, '✕ Delete')
+                        React.createElement('div', { className: 'flex gap-2 mt-2' },
+                          React.createElement('button', { onClick: () => startEditString(stringId), className: 'text-blue-400 text-sm border-0 cursor-pointer hover:text-blue-300 flex-1 text-left' }, '✏️ Edit'),
+                          React.createElement('button', { onClick: () => { const newStrings = { ...authorisedStrings }; delete newStrings[str.id]; setAuthorisedStrings(newStrings); }, className: 'text-red-400 text-sm border-0 cursor-pointer hover:text-red-300 flex-1 text-right' }, '✕ Delete')
+                        )
                       )
                     )
                   )
@@ -555,11 +712,10 @@
                     drill.photo && React.createElement('img', { src: drill.photo, className: 'w-full h-32 object-cover rounded mb-2' }),
                     React.createElement('div', { className: 'font-bold text-blue-300 text-lg mb-2' }, rigId),
                     React.createElement('div', { className: 'text-xs text-gray-400 mb-3' }, drill.type),
-                    React.createElement('div', { className: 'mt-2' },
-                      React.createElement('label', { className: 'text-gray-300 block mb-1 text-xs' }, 'Update photo:'),
-                      React.createElement('input', { type: 'file', accept: 'image/*', onChange: (e) => handleDrillPhotoUpload(rigId, e), className: 'block w-full text-white text-xs' })
-                    ),
-                    React.createElement('button', { onClick: () => removeDrill(rigId), className: 'text-red-400 text-sm mt-2 border-0 cursor-pointer hover:text-red-300' }, '✕ Remove Drill')
+                    React.createElement('div', { className: 'flex gap-2' },
+                      React.createElement('button', { onClick: () => startEditDrill(rigId), className: 'text-blue-400 text-sm border-0 cursor-pointer hover:text-blue-300 flex-1' }, '✏️ Edit'),
+                      React.createElement('button', { onClick: () => removeDrill(rigId), className: 'text-red-400 text-sm border-0 cursor-pointer hover:text-red-300 flex-1' }, '✕ Remove')
+                    )
                   )
                 )
               )
@@ -611,10 +767,10 @@
                   React.createElement('p', { style: { margin: '0' } }, new Date().toLocaleDateString())
                 )
               ),
-              // DRILL PHOTO SECTION - SMALLER
-              drill.photo && React.createElement('div', { style: { marginBottom: '6mm', textAlign: 'center', paddingBottom: '6mm', borderBottom: '1px solid #cccccc' } },
-                React.createElement('h3', { style: { margin: '0 0 3mm 0', fontSize: '10px', fontWeight: 'bold' } }, 'DRILL RIG'),
-                React.createElement('img', { src: drill.photo, style: { maxWidth: '100%', maxHeight: '60mm', objectFit: 'contain' } })
+              // DRILL PHOTO SECTION - LARGER
+              drill.photo && React.createElement('div', { style: { marginBottom: '8mm', textAlign: 'center', paddingBottom: '8mm', borderBottom: '1px solid #cccccc', minHeight: '100mm' } },
+                React.createElement('h3', { style: { margin: '0 0 2mm 0', fontSize: '10px', fontWeight: 'bold' } }, 'DRILL RIG'),
+                React.createElement('img', { src: drill.photo, style: { maxWidth: '100%', maxHeight: '95mm', objectFit: 'contain', margin: '0 auto' } })
               ),
               // COMPONENTS AND TABLE
               React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8mm' } },
