@@ -75,14 +75,22 @@
       const [loginAttempt, setLoginAttempt] = useState('');
       const [adminPassword] = useState('admin123');
 
-      // DATA STATE
+      // DATA STATE - RESET CORRUPTED DATA
       const [consumables, setConsumables] = useState(() => {
         try {
           const saved = localStorage.getItem('consumables');
-          return saved ? JSON.parse(saved) : defaultConsumables;
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            // Check if we have valid data with at least 37 items
+            if (parsed && Array.isArray(parsed) && parsed.length >= 37) {
+              return parsed;
+            }
+          }
         } catch (e) {
-          return defaultConsumables;
+          console.log('localStorage corrupted, resetting to defaults');
+          localStorage.removeItem('consumables');
         }
+        return defaultConsumables;
       });
 
       const [drills, setDrills] = useState(() => {
@@ -403,14 +411,17 @@
                     React.createElement('option', { value: '' }, '-- Select component --'),
                     consumables.map(c => React.createElement('option', { key: c.id, value: c.id }, `${c.name}`))
                   ),
-                  React.createElement('div', { className: 'space-y-2 mb-4' },
+                  React.createElement('div', { className: 'space-y-2 mb-4 max-h-96 overflow-y-auto' },
                     newStringComponents.map((comp, idx) =>
-                      React.createElement('div', { key: idx, className: 'bg-slate-600/50 p-3 rounded flex justify-between items-center' },
-                        React.createElement('div', null,
-                          React.createElement('div', { className: 'text-blue-300 font-bold' }, `${idx + 1}. ${comp.name}`),
-                          comp.photo && React.createElement('img', { src: comp.photo, className: 'w-16 h-16 mt-1 rounded object-cover' })
+                      React.createElement('div', { key: idx, className: 'bg-slate-600/50 p-3 rounded flex flex-col border border-blue-400' },
+                        React.createElement('div', { className: 'flex justify-between items-start mb-2' },
+                          React.createElement('div', null,
+                            React.createElement('div', { className: 'text-blue-300 font-bold text-sm' }, `${idx + 1}. ${comp.name}`),
+                            React.createElement('div', { className: 'text-xs text-gray-400' }, `${comp.category} | ${comp.weight}kg`)
+                          ),
+                          React.createElement('button', { onClick: () => setNewStringComponents(newStringComponents.filter((_, i) => i !== idx)), className: 'text-red-400 hover:text-red-300 font-bold border-0 cursor-pointer' }, '✕')
                         ),
-                        React.createElement('button', { onClick: () => setNewStringComponents(newStringComponents.filter((_, i) => i !== idx)), className: 'text-red-400 hover:text-red-300 font-bold border-0 cursor-pointer' }, '✕')
+                        comp.photo && React.createElement('img', { src: comp.photo, className: 'w-full h-32 object-contain rounded mt-2' })
                       )
                     )
                   ),
@@ -418,11 +429,19 @@
                 )
               ),
               React.createElement('div', { className: 'bg-slate-700 border border-blue-500/30 rounded-lg p-6 sticky top-6' },
-                React.createElement('h4', { className: 'text-blue-300 font-bold mb-4' }, '👀 Preview'),
-                React.createElement('div', { className: 'flex flex-col items-center gap-1 min-h-64' },
-                  newStringComponents.length === 0 && React.createElement('p', { className: 'text-gray-400 text-sm' }, 'Add components'),
+                React.createElement('h4', { className: 'text-blue-300 font-bold mb-4' }, '👀 String Assembly Preview'),
+                React.createElement('div', { className: 'flex flex-col items-center gap-2 min-h-96 bg-slate-600/30 p-4 rounded overflow-y-auto' },
+                  newStringComponents.length === 0 && React.createElement('p', { className: 'text-gray-400 text-sm mt-10' }, 'Add components to preview'),
                   newStringComponents.map((comp, idx) =>
-                    React.createElement('div', { key: idx, className: 'w-24 h-10 bg-blue-600 rounded text-xs text-white flex items-center justify-center font-bold' }, comp.category)
+                    React.createElement('div', { key: idx, className: 'w-full max-w-xs bg-slate-600 rounded border border-blue-400 p-4 flex flex-col items-center' },
+                      React.createElement('div', { className: 'text-xs text-gray-400 mb-2' }, `${idx + 1}. ${comp.category}`),
+                      comp.photo ? 
+                        React.createElement('img', { src: comp.photo, className: 'w-full h-32 object-contain rounded mb-2' })
+                        :
+                        React.createElement('div', { className: 'w-full h-32 bg-slate-500 rounded flex items-center justify-center mb-2' }, React.createElement('span', { className: 'text-xs text-gray-400' }, 'No photo')),
+                      React.createElement('div', { className: 'text-xs text-white font-bold text-center' }, comp.name),
+                      React.createElement('div', { className: 'text-xs text-gray-300 mt-1' }, `${comp.weight}kg`)
+                    )
                   )
                 )
               )
@@ -609,11 +628,16 @@
                         )
                       ),
                       React.createElement('div', { className: 'bg-slate-600/30 rounded p-8 mb-4' },
-                        React.createElement('div', { className: 'flex flex-col items-center gap-1 min-h-64' },
+                        React.createElement('div', { className: 'flex flex-col items-center gap-3 min-h-96 overflow-y-auto p-4' },
                           assignedString.components.map((comp, idx) =>
-                            React.createElement('div', { key: idx, className: 'w-28 rounded text-xs text-center py-4 bg-gradient-to-b from-blue-600 to-blue-700 text-white font-bold shadow-lg flex flex-col items-center justify-center' },
-                              comp.photo && React.createElement('img', { src: comp.photo, className: 'w-20 h-20 object-cover rounded mb-1' }),
-                              comp.name.split(':')[0]
+                            React.createElement('div', { key: idx, className: 'w-full max-w-xs bg-slate-600 rounded border border-blue-400 p-3 flex flex-col items-center' },
+                              React.createElement('div', { className: 'text-xs text-gray-400 mb-2' }, `${idx + 1}. ${comp.category}`),
+                              comp.photo ?
+                                React.createElement('img', { src: comp.photo, className: 'w-full h-40 object-contain rounded mb-2' })
+                                :
+                                React.createElement('div', { className: 'w-full h-40 bg-slate-500 rounded flex items-center justify-center mb-2' }, React.createElement('span', { className: 'text-xs text-gray-400' }, 'No photo')),
+                              React.createElement('div', { className: 'text-xs text-white font-bold text-center' }, comp.name),
+                              React.createElement('div', { className: 'text-xs text-gray-300 mt-1' }, `${comp.weight}kg | OD: ${comp.od}mm`)
                             )
                           )
                         )
