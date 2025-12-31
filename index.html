@@ -3,647 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Drill Rig Management System - Pilgangoora</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <title>Drill Rig Management System</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @media print {
-      body { margin: 0; padding: 0; background: white; }
-      .no-print { display: none !important; }
-      .print-only { display: block !important; }
-    }
-    .print-only { display: none; }
-    .drill-photo { width: 150px; height: 150px; object-fit: cover; border-radius: 8px; }
-    .component-tile { transition: transform 0.2s; }
-    .component-tile:hover { transform: scale(1.05); }
-    .logo-display { max-width: 150px; max-height: 100px; object-fit: contain; }
-    .logo-print { max-width: 120px; max-height: 80px; object-fit: contain; }
-  </style>
 </head>
-<body>
-  <div id="root"></div>
+<body style="margin:0;padding:0;background:#1e293b;color:white;">
+  <div id="root" style="width:100%;height:100vh;"></div>
 
   <script>
-    const { useState, useEffect } = React;
+    const { useState, useEffect } = window.React;
+    const { createRoot } = window.ReactDOM;
 
-    // ALL APPROVED CONSUMABLES FROM D65 EXCEL
     const defaultConsumables = [
       { id: 1, name: 'Shock Sub: Montrae 4600', category: 'Shock Sub', partNumber: 'Montrae 4600', weight: '442', length: '562', od: '200', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
       { id: 2, name: 'Shock Sub: Montrae 5600', category: 'Shock Sub', partNumber: 'Montrae 5600', weight: '820', length: '650', od: '254', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
       { id: 3, name: 'Shock Sub: Montrae 3600', category: 'Shock Sub', partNumber: 'Montrae 3600', weight: '295', length: '480', od: '178', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 4, name: 'Spindle: API-DIBH Crossover 102', category: 'Spindle', partNumber: 'API-DIBH Crossover 102', weight: '18', length: '305', od: '127', pinSize: '3-1/8 DIBH Pin', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 5, name: 'Spindle: API-DIBH Crossover 114', category: 'Spindle', partNumber: 'API-DIBH Crossover 114', weight: '24', length: '330', od: '140', pinSize: '3-1/8 DIBH Pin', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 6, name: 'Spindle: DIBH-API Crossover 102', category: 'Spindle', partNumber: 'DIBH-API Crossover 102', weight: '18', length: '305', od: '127', pinSize: '3.5 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
-      { id: 7, name: 'Spindle: DIBH-API Crossover 114', category: 'Spindle', partNumber: 'DIBH-API Crossover 114', weight: '24', length: '330', od: '140', pinSize: '3.5 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
-      { id: 8, name: 'Drill Pipe: 102x6.3 - 6m DIBH', category: 'Drill Pipe', partNumber: '102x6.3 - 6m DIBH', weight: '100', length: '6000', od: '102', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
-      { id: 9, name: 'Drill Pipe: 102x8.8 - 6m DIBH', category: 'Drill Pipe', partNumber: '102x8.8 - 6m DIBH', weight: '134', length: '6000', od: '102', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
-      { id: 10, name: 'Drill Pipe: 102x12.7 - 6m API', category: 'Drill Pipe', partNumber: '102x12.7 - 6m API', weight: '174', length: '6000', od: '102', pinSize: '3.5 API IF Pin', boxSize: '3.5 API IF Box', photo: null },
-      { id: 11, name: 'Drill Pipe: 114x8.8 - 6m DIBH', category: 'Drill Pipe', partNumber: '114x8.8 - 6m DIBH', weight: '152', length: '6000', od: '114', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
-      { id: 12, name: 'Collar Pipe: 154mm Collar - 3m', category: 'Collar Pipe', partNumber: '154mm Collar - 3m', weight: '150', length: '3000', od: '154', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
-      { id: 13, name: 'Collar Pipe: 154mm Collar - 6m', category: 'Collar Pipe', partNumber: '154mm Collar - 6m', weight: '300', length: '6000', od: '154', pinSize: '3-1/8 DIBH Pin', boxSize: '3-1/8 DIBH Box', photo: null },
-      { id: 14, name: 'Collar Pipe: 190mm Collar - 3m', category: 'Collar Pipe', partNumber: '190mm Collar - 3m', weight: '225', length: '3000', od: '190', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 15, name: 'Collar Pipe: 190mm Collar - 6m', category: 'Collar Pipe', partNumber: '190mm Collar - 6m', weight: '450', length: '6000', od: '190', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 16, name: 'Adapter: DIBH-API Sub 6" Hammer', category: 'Adapter', partNumber: 'DIBH-API Sub 6" Hammer', weight: '22', length: '280', od: '140', pinSize: '3.5 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
-      { id: 17, name: 'Adapter: DIBH-API Sub 4" Hammer', category: 'Adapter', partNumber: 'DIBH-API Sub 4" Hammer', weight: '12', length: '230', od: '102', pinSize: '2-3/8 API Reg Pin', boxSize: '3-1/8 DIBH Box', photo: null },
-      { id: 18, name: 'Adapter: API-API Sub 6" Hammer', category: 'Adapter', partNumber: 'API-API Sub 6" Hammer', weight: '20', length: '250', od: '140', pinSize: '3.5 API Reg Pin', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 19, name: 'Hammer: Sandvik RH460 6"', category: 'Hammer', partNumber: 'Sandvik RH460 6"', weight: '100', length: '1155', od: '6 inch', pinSize: 'QL60', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 20, name: 'Hammer: Sandvik RH460g 6"', category: 'Hammer', partNumber: 'Sandvik RH460g 6"', weight: '117', length: '1155', od: '6 inch', pinSize: 'QL60', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 21, name: 'Hammer: Sandvik RH510r 6"', category: 'Hammer', partNumber: 'Sandvik RH510r 6"', weight: '82', length: '922', od: '6 inch', pinSize: 'M60', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 22, name: 'Hammer: Sandvik RH560g 6"', category: 'Hammer', partNumber: 'Sandvik RH560g 6"', weight: '117', length: '1158', od: '6 inch', pinSize: '560-6', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 23, name: 'Hammer: Epiroc COP 64 Gold', category: 'Hammer', partNumber: 'Epiroc COP 64 Gold', weight: '103', length: '1255', od: '6 inch', pinSize: 'QL60', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 24, name: 'Hammer: Epiroc COP M6', category: 'Hammer', partNumber: 'Epiroc COP M6', weight: '72', length: '1100', od: '6 inch', pinSize: 'Solid', boxSize: '3.5 API Reg Box', photo: null },
-      { id: 25, name: 'Hammer: Sandvik RH460 4"', category: 'Hammer', partNumber: 'Sandvik RH460 4"', weight: '40', length: '985', od: '4 inch', pinSize: 'DHD340', boxSize: '2-3/8 API Reg Box', photo: null },
-      { id: 26, name: 'Hammer: Sandvik RH510r 4"', category: 'Hammer', partNumber: 'Sandvik RH510r 4"', weight: '38', length: '914', od: '4 inch', pinSize: 'M40', boxSize: '2-3/8 API Reg Box', photo: null },
-      { id: 27, name: 'Hammer: Epiroc COP 44 Gold', category: 'Hammer', partNumber: 'Epiroc COP 44 Gold', weight: '39', length: '1049', od: '4 inch', pinSize: 'TD40', boxSize: '2-3/8 API Reg Box', photo: null },
-      { id: 28, name: 'Bit: 115mm Concave M40', category: 'Bit', partNumber: '115mm Concave M40', weight: '8.4', length: '280', od: '115', pinSize: '4 inch', boxSize: 'Concave', photo: null },
-      { id: 29, name: 'Bit: 115mm Concave DHD340', category: 'Bit', partNumber: '115mm Concave DHD340', weight: '8.4', length: '280', od: '115', pinSize: '4 inch', boxSize: 'Concave', photo: null },
-      { id: 30, name: 'Bit: 115mm Uniface M40', category: 'Bit', partNumber: '115mm Uniface M40', weight: '9.4', length: '290', od: '115', pinSize: '4 inch', boxSize: 'Uniface', photo: null },
-      { id: 31, name: 'Bit: 127mm Concave M40', category: 'Bit', partNumber: '127mm Concave M40', weight: '12', length: '300', od: '127', pinSize: '4 inch', boxSize: 'Concave', photo: null },
-      { id: 32, name: 'Bit: 127mm Concave QL60', category: 'Bit', partNumber: '127mm Concave QL60', weight: '14', length: '340', od: '127', pinSize: '6 inch', boxSize: 'Concave', photo: null },
-      { id: 33, name: 'Bit: 127mm Uniface M60', category: 'Bit', partNumber: '127mm Uniface M60', weight: '12.5', length: '310', od: '127', pinSize: '6 inch', boxSize: 'Uniface', photo: null },
-      { id: 34, name: 'Bit: 165mm Concave M60', category: 'Bit', partNumber: '165mm Concave M60', weight: '23.5', length: '350', od: '165', pinSize: '6 inch', boxSize: 'Concave', photo: null },
-      { id: 35, name: 'Bit: 165mm Concave QL60', category: 'Bit', partNumber: '165mm Concave QL60', weight: '27.5', length: '380', od: '165', pinSize: '6 inch', boxSize: 'Concave', photo: null },
-      { id: 36, name: 'Bit: 165mm Convex M60', category: 'Bit', partNumber: '165mm Convex M60', weight: '23.5', length: '350', od: '165', pinSize: '6 inch', boxSize: 'Convex', photo: null },
-      { id: 37, name: 'Bit: 165mm Uniface QL60', category: 'Bit', partNumber: '165mm Uniface QL60', weight: '24.5', length: '370', od: '165', pinSize: '6 inch', boxSize: 'Uniface', photo: null },
     ];
 
     function App() {
-      const [currentPage, setCurrentPage] = useState('fleet');
-      const [selectedRig, setSelectedRig] = useState('DR201');
       const [adminMode, setAdminMode] = useState(false);
-      const [adminPassword, setAdminPassword] = useState('admin123');
       const [showLoginPrompt, setShowLoginPrompt] = useState(false);
       const [loginAttempt, setLoginAttempt] = useState('');
-      const [logoImage, setLogoImage] = useState(() => {
-        const saved = localStorage.getItem('companyLogo');
-        return saved ? saved : null;
-      });
-
+      const [adminPassword] = useState('admin123');
       const [consumables, setConsumables] = useState(() => {
-        const saved = localStorage.getItem('consumables');
-        if (saved) {
-          return JSON.parse(saved);
+        try {
+          const saved = localStorage.getItem('consumables');
+          return saved ? JSON.parse(saved) : defaultConsumables;
+        } catch (e) {
+          return defaultConsumables;
         }
-        return defaultConsumables;
       });
-
-      const [drills, setDrills] = useState(() => {
-        const saved = localStorage.getItem('drills');
-        return saved ? JSON.parse(saved) : {
-          'DR201': { type: 'Epiroc D65', location: 'Collar Zone', status: 'Active', hours: 2847, photo: null },
-          'DR202': { type: 'Epiroc D65', location: 'Overburden', status: 'Active', hours: 2934, photo: null },
-          'DR203': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 3102, photo: null },
-          'DR204': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 2756, photo: null },
-          'DR205': { type: 'Epiroc D65', location: 'Production', status: 'Standby', hours: 1829, photo: null },
-          'DR206': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 2645, photo: null },
-          'DR207': { type: 'Epiroc D65', location: 'Wall Control', status: 'Active', hours: 2234, photo: null },
-          'DR208': { type: 'CAT MD6250', location: 'Production', status: 'Active', hours: 2987, photo: null },
-          'DR209': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 3045, photo: null },
-          'DR210': { type: 'Epiroc D65', location: 'Deep Prod', status: 'Active', hours: 2123, photo: null },
-          'DR211': { type: 'CAT MD6250', location: 'Production', status: 'Active', hours: 2876, photo: null },
-          'DR212': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 2645, photo: null },
-          'DR213': { type: 'Epiroc D65', location: 'Production', status: 'Active', hours: 2734, photo: null },
-          'DR214': { type: 'Epiroc D65', location: 'Wall Control', status: 'Maintenance', hours: 1456, photo: null },
-        };
-      });
-
-      const [authorisedStrings, setAuthorisedStrings] = useState(() => {
-        const saved = localStorage.getItem('authorisedStrings');
-        return saved ? JSON.parse(saved) : {};
-      });
-
-      const [rigStringAssignments, setRigStringAssignments] = useState(() => {
-        const saved = localStorage.getItem('rigStringAssignments');
-        return saved ? JSON.parse(saved) : {};
-      });
-
-      const [adminTab, setAdminTab] = useState('strings');
-      const [showCreateString, setShowCreateString] = useState(false);
-      const [showAddConsumable, setShowAddConsumable] = useState(false);
-      const [showEditConsumable, setShowEditConsumable] = useState(false);
-      const [selectedConsumableToEdit, setSelectedConsumableToEdit] = useState(null);
-      const [showAddDrill, setShowAddDrill] = useState(false);
-
-      const [newConsumable, setNewConsumable] = useState({ 
-        name: '', category: '', partNumber: '', weight: '', length: '', od: '', pinSize: '', boxSize: '', photo: null 
-      });
-
-      const [editingConsumable, setEditingConsumable] = useState({ 
-        name: '', category: '', partNumber: '', weight: '', length: '', od: '', pinSize: '', boxSize: '', photo: null 
-      });
-
-      const [newStringName, setNewStringName] = useState('');
-      const [newStringDrillType, setNewStringDrillType] = useState('Epiroc D65');
-      const [newStringComponents, setNewStringComponents] = useState([]);
-
-      const [newDrillId, setNewDrillId] = useState('DR301');
-      const [newDrillType, setNewDrillType] = useState('Epiroc D65');
-      const [newDrillLocation, setNewDrillLocation] = useState('');
-      const [newDrillPhoto, setNewDrillPhoto] = useState(null);
 
       useEffect(() => {
-        localStorage.setItem('consumables', JSON.stringify(consumables));
+        try {
+          localStorage.setItem('consumables', JSON.stringify(consumables));
+        } catch (e) {
+          console.error('Storage error:', e);
+        }
       }, [consumables]);
 
-      useEffect(() => {
-        localStorage.setItem('drills', JSON.stringify(drills));
-      }, [drills]);
-
-      useEffect(() => {
-        localStorage.setItem('authorisedStrings', JSON.stringify(authorisedStrings));
-      }, [authorisedStrings]);
-
-      useEffect(() => {
-        localStorage.setItem('rigStringAssignments', JSON.stringify(rigStringAssignments));
-      }, [rigStringAssignments]);
-
-      useEffect(() => {
-        if (logoImage) {
-          localStorage.setItem('companyLogo', logoImage);
-        }
-      }, [logoImage]);
-
-      // ==================== HANDLERS ====================
       const handleAdminLogin = () => {
         if (loginAttempt === adminPassword) {
           setAdminMode(true);
           setShowLoginPrompt(false);
           setLoginAttempt('');
         } else {
-          alert('❌ Incorrect password');
+          alert('Wrong password');
           setLoginAttempt('');
         }
       };
 
-      const handleLogout = () => {
-        setAdminMode(false);
-        setAdminTab('strings');
-      };
-
-      const handleLogoUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            setLogoImage(reader.result);
-            alert('✓ Logo uploaded!');
-          };
-          reader.readAsDataURL(file);
-        }
-      };
-
-      const removeLogo = () => {
-        if (confirm('Remove logo?')) {
-          setLogoImage(null);
-          localStorage.removeItem('companyLogo');
-          alert('✓ Logo removed');
-        }
-      };
-
-      const createDrillString = () => {
-        if (!newStringName.trim()) {
-          alert('Enter string name');
-          return;
-        }
-        if (newStringComponents.length === 0) {
-          alert('Add at least one component');
-          return;
-        }
-        const stringId = Date.now().toString();
-        setAuthorisedStrings({
-          ...authorisedStrings,
-          [stringId]: {
-            id: stringId,
-            name: newStringName,
-            drillType: newStringDrillType,
-            components: newStringComponents,
-            created: new Date().toLocaleDateString()
-          }
-        });
-        alert(`✓ String created!`);
-        setNewStringName('');
-        setNewStringComponents([]);
-        setShowCreateString(false);
-      };
-
-      const addConsumable = () => {
-        if (!newConsumable.name.trim()) {
-          alert('Enter consumable name');
-          return;
-        }
-        const nextId = consumables.length > 0 ? Math.max(...consumables.map(c => c.id)) + 1 : 1;
-        setConsumables([...consumables, { id: nextId, ...newConsumable }]);
-        alert('✓ Consumable added!');
-        setNewConsumable({ name: '', category: '', partNumber: '', weight: '', length: '', od: '', pinSize: '', boxSize: '', photo: null });
-        setShowAddConsumable(false);
-      };
-
-      const startEditConsumable = (consumable) => {
-        setSelectedConsumableToEdit(consumable.id);
-        setEditingConsumable({ ...consumable });
-        setShowEditConsumable(true);
-      };
-
-      const saveEditConsumable = () => {
-        if (!editingConsumable.name.trim()) {
-          alert('Enter consumable name');
-          return;
-        }
-        setConsumables(consumables.map(c => c.id === selectedConsumableToEdit ? editingConsumable : c));
-        alert('✓ Consumable updated!');
-        setShowEditConsumable(false);
-        setSelectedConsumableToEdit(null);
-        setEditingConsumable({ name: '', category: '', partNumber: '', weight: '', length: '', od: '', pinSize: '', boxSize: '', photo: null });
-      };
-
-      const removeConsumable = (id) => {
-        if (confirm('Remove this consumable?')) {
-          setConsumables(consumables.filter(c => c.id !== id));
-        }
-      };
-
-      const addDrill = () => {
-        if (!newDrillId.trim()) {
-          alert('Enter drill ID');
-          return;
-        }
-        const newDrillsData = {
-          ...drills,
-          [newDrillId]: { type: newDrillType, location: newDrillLocation, status: 'Active', hours: 0, photo: newDrillPhoto }
-        };
-        setDrills(newDrillsData);
-        alert(`✓ Drill ${newDrillId} added!`);
-        setNewDrillId('');
-        setNewDrillLocation('');
-        setNewDrillPhoto(null);
-        setShowAddDrill(false);
-      };
-
-      const removeDrill = (rigId) => {
-        if (confirm(`Remove drill ${rigId}?`)) {
-          const newDrillsData = { ...drills };
-          delete newDrillsData[rigId];
-          setDrills(newDrillsData);
-        }
-      };
-
-      const handlePhotoUpload = (e, target) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            if (target === 'consumable') {
-              setNewConsumable({ ...newConsumable, photo: reader.result });
-            } else if (target === 'edit') {
-              setEditingConsumable({ ...editingConsumable, photo: reader.result });
-            } else if (target === 'drill') {
-              setNewDrillPhoto(reader.result);
-            }
-          };
-          reader.readAsDataURL(file);
-        }
-      };
-
-      const handleDrillPhotoUpload = (rigId, e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            setDrills({ ...drills, [rigId]: { ...drills[rigId], photo: reader.result } });
-          };
-          reader.readAsDataURL(file);
-        }
-      };
-
-      const assignStringToRig = (stringId) => {
-        setRigStringAssignments({ ...rigStringAssignments, [selectedRig]: stringId });
-        alert(`✓ String assigned to ${selectedRig}`);
-      };
-
-      // ==================== LOGIN ====================
       if (showLoginPrompt) {
-        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4' },
-          React.createElement('div', { className: 'bg-gradient-to-br from-slate-800 to-slate-900 border border-red-500/30 rounded-lg p-8 max-w-sm w-full' },
-            React.createElement('h2', { className: 'text-2xl font-bold text-red-400 mb-6 text-center' }, '🔓 Admin Login'),
-            React.createElement('input', { type: 'password', placeholder: 'Password', value: loginAttempt, onChange: (e) => setLoginAttempt(e.target.value), onKeyPress: (e) => e.key === 'Enter' && handleAdminLogin(), className: 'w-full bg-slate-600 text-white rounded px-4 py-2 mb-4' }),
-            React.createElement('button', { onClick: handleAdminLogin, className: 'w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold mb-2' }, 'Login'),
-            React.createElement('button', { onClick: () => setShowLoginPrompt(false), className: 'w-full bg-gray-600 hover:bg-gray-500 text-white py-2 rounded font-bold' }, 'Cancel')
+        return React.createElement('div', { style: { minHeight: '100vh', background: 'linear-gradient(to bottom right, #0f172a, #1e293b)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' } },
+          React.createElement('div', { style: { background: 'linear-gradient(to bottom right, #1e293b, #0f172a)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '0.5rem', padding: '2rem', maxWidth: '24rem', width: '100%' } },
+            React.createElement('h2', { style: { fontSize: '1.5rem', fontWeight: 'bold', color: '#f87171', marginBottom: '1.5rem', textAlign: 'center' } }, '🔓 Admin Login'),
+            React.createElement('input', { type: 'password', placeholder: 'Password', value: loginAttempt, onChange: (e) => setLoginAttempt(e.target.value), onKeyPress: (e) => e.key === 'Enter' && handleAdminLogin(), style: { width: '100%', background: '#475569', color: 'white', borderRadius: '0.375rem', padding: '0.5rem 1rem', marginBottom: '1rem', border: 'none' } }),
+            React.createElement('button', { onClick: handleAdminLogin, style: { width: '100%', background: '#dc2626', color: 'white', padding: '0.5rem', borderRadius: '0.375rem', fontWeight: 'bold', marginBottom: '0.5rem', border: 'none', cursor: 'pointer' } }, 'Login'),
+            React.createElement('button', { onClick: () => setShowLoginPrompt(false), style: { width: '100%', background: '#4b5563', color: 'white', padding: '0.5rem', borderRadius: '0.375rem', fontWeight: 'bold', border: 'none', cursor: 'pointer' } }, 'Cancel')
           )
         );
       }
 
-      // ==================== EDIT CONSUMABLE ====================
-      if (adminMode && showEditConsumable && selectedConsumableToEdit) {
-        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
-          React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
-            React.createElement('div', { className: 'max-w-6xl mx-auto' },
-              React.createElement('button', { onClick: () => setShowEditConsumable(false), className: 'bg-gray-600 text-white px-4 py-2 rounded' }, 'Back')
-            )
-          ),
-          React.createElement('div', { className: 'max-w-6xl mx-auto p-6' },
-            React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
-              React.createElement('h2', { className: 'text-2xl font-bold text-blue-400 mb-6' }, '✏️ Edit Consumable Item'),
-              React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6' },
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Item Name'), React.createElement('input', { type: 'text', value: editingConsumable.name, onChange: (e) => setEditingConsumable({ ...editingConsumable, name: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Category'), React.createElement('input', { type: 'text', value: editingConsumable.category, onChange: (e) => setEditingConsumable({ ...editingConsumable, category: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Part Number'), React.createElement('input', { type: 'text', value: editingConsumable.partNumber, onChange: (e) => setEditingConsumable({ ...editingConsumable, partNumber: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Weight (kg)'), React.createElement('input', { type: 'text', value: editingConsumable.weight, onChange: (e) => setEditingConsumable({ ...editingConsumable, weight: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Length (mm)'), React.createElement('input', { type: 'text', value: editingConsumable.length, onChange: (e) => setEditingConsumable({ ...editingConsumable, length: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'OD (mm)'), React.createElement('input', { type: 'text', value: editingConsumable.od, onChange: (e) => setEditingConsumable({ ...editingConsumable, od: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Pin Size/Thread'), React.createElement('input', { type: 'text', value: editingConsumable.pinSize, onChange: (e) => setEditingConsumable({ ...editingConsumable, pinSize: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Box Size/Thread'), React.createElement('input', { type: 'text', value: editingConsumable.boxSize, onChange: (e) => setEditingConsumable({ ...editingConsumable, boxSize: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, '📸 Update Photo'), React.createElement('input', { type: 'file', accept: 'image/*', onChange: (e) => handlePhotoUpload(e, 'edit'), className: 'block w-full text-white text-sm' }))
-              ),
-              editingConsumable.photo && React.createElement('div', { className: 'mb-6' },
-                React.createElement('h4', { className: 'text-blue-300 font-bold mb-2' }, 'Current Photo:'),
-                React.createElement('img', { src: editingConsumable.photo, className: 'w-32 h-32 object-cover rounded' })
-              ),
-              React.createElement('div', { className: 'bg-slate-600/50 p-4 rounded mb-6' },
-                React.createElement('h4', { className: 'text-blue-300 font-bold mb-3' }, '📋 Updated Specifications:'),
-                React.createElement('div', { className: 'grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-300' },
-                  React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Weight: '), editingConsumable.weight || '-'),
-                  React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Length: '), editingConsumable.length || '-'),
-                  React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'OD: '), editingConsumable.od || '-'),
-                  React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Pin: '), editingConsumable.pinSize || '-'),
-                  React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Box: '), editingConsumable.boxSize || '-')
-                )
-              ),
-              React.createElement('button', { onClick: saveEditConsumable, className: 'w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded font-bold text-lg' }, '✓ Save Changes')
-            )
-          )
-        );
-      }
-
-      // ==================== ADD CONSUMABLE ====================
-      if (adminMode && showAddConsumable) {
-        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
-          React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
-            React.createElement('div', { className: 'max-w-6xl mx-auto' },
-              React.createElement('button', { onClick: () => setShowAddConsumable(false), className: 'bg-gray-600 text-white px-4 py-2 rounded' }, 'Back')
-            )
-          ),
-          React.createElement('div', { className: 'max-w-6xl mx-auto p-6' },
-            React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
-              React.createElement('h2', { className: 'text-2xl font-bold text-blue-400 mb-2' }, '➕ Add Consumable Item'),
-              React.createElement('p', { className: 'text-gray-400 mb-6 text-sm' }, `Approved items: ${defaultConsumables.length} | Total with custom: ${consumables.length}`),
-              React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6' },
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Item Name'), React.createElement('input', { type: 'text', value: newConsumable.name, onChange: (e) => setNewConsumable({ ...newConsumable, name: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Category'), React.createElement('input', { type: 'text', value: newConsumable.category, onChange: (e) => setNewConsumable({ ...newConsumable, category: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Part Number'), React.createElement('input', { type: 'text', value: newConsumable.partNumber, onChange: (e) => setNewConsumable({ ...newConsumable, partNumber: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Weight (kg)'), React.createElement('input', { type: 'text', value: newConsumable.weight, onChange: (e) => setNewConsumable({ ...newConsumable, weight: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Length (mm)'), React.createElement('input', { type: 'text', value: newConsumable.length, onChange: (e) => setNewConsumable({ ...newConsumable, length: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'OD (mm)'), React.createElement('input', { type: 'text', value: newConsumable.od, onChange: (e) => setNewConsumable({ ...newConsumable, od: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Pin Size/Thread'), React.createElement('input', { type: 'text', value: newConsumable.pinSize, onChange: (e) => setNewConsumable({ ...newConsumable, pinSize: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, 'Box Size/Thread'), React.createElement('input', { type: 'text', value: newConsumable.boxSize, onChange: (e) => setNewConsumable({ ...newConsumable, boxSize: e.target.value }), className: 'w-full bg-slate-600 text-white rounded px-4 py-2' })),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-1 text-sm font-bold' }, '📸 Upload Photo'), React.createElement('input', { type: 'file', accept: 'image/*', onChange: (e) => handlePhotoUpload(e, 'consumable'), className: 'block w-full text-white text-sm' }))
-              ),
-              newConsumable.photo && React.createElement('div', { className: 'mb-6' }, React.createElement('h4', { className: 'text-blue-300 font-bold mb-2' }, 'Photo Preview:'), React.createElement('img', { src: newConsumable.photo, className: 'w-32 h-32 object-cover rounded' })),
-              React.createElement('div', { className: 'bg-slate-600/50 p-4 rounded mb-6' }, React.createElement('h4', { className: 'text-blue-300 font-bold mb-3' }, '📋 Specification Summary:'), React.createElement('div', { className: 'grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-300' }, React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Weight: '), newConsumable.weight || '-'), React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Length: '), newConsumable.length || '-'), React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'OD: '), newConsumable.od || '-'), React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Pin: '), newConsumable.pinSize || '-'), React.createElement('div', null, React.createElement('span', { className: 'text-gray-400' }, 'Box: '), newConsumable.boxSize || '-'))),
-              React.createElement('button', { onClick: addConsumable, className: 'w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded font-bold text-lg' }, '✓ Add Item')
-            )
-          )
-        );
-      }
-
-      // ==================== CREATE STRING ====================
-      if (adminMode && showCreateString) {
-        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
-          React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
-            React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between' },
-              React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⛓️ Create Drill String'),
-              React.createElement('button', { onClick: () => { setShowCreateString(false); setNewStringComponents([]); }, className: 'bg-gray-600 text-white px-4 py-2 rounded' }, 'Back')
-            )
-          ),
-          React.createElement('div', { className: 'max-w-7xl mx-auto p-6' },
-            React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-3 gap-6' },
-              React.createElement('div', { className: 'lg:col-span-2 space-y-4' },
-                React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
-                  React.createElement('h3', { className: 'text-xl font-bold text-blue-400 mb-4' }, '📝 String Details'),
-                  React.createElement('input', { type: 'text', placeholder: 'String name', value: newStringName, onChange: (e) => setNewStringName(e.target.value), className: 'w-full bg-slate-600 text-white rounded px-4 py-2 mb-4' }),
-                  React.createElement('select', { value: newStringDrillType, onChange: (e) => setNewStringDrillType(e.target.value), className: 'w-full bg-slate-600 text-white rounded px-4 py-2 mb-4' }, React.createElement('option', null, 'Epiroc D65'), React.createElement('option', null, 'CAT MD6250')),
-                  React.createElement('h4', { className: 'text-blue-300 font-bold mb-3' }, '🧩 Available Components'),
-                  React.createElement('div', { className: 'mb-4' },
-                    React.createElement('select', {
-                      onChange: (e) => {
-                        const comp = consumables.find(c => c.id === parseInt(e.target.value));
-                        if (comp) {
-                          setNewStringComponents([...newStringComponents, comp]);
-                          e.target.value = '';
-                        }
-                      },
-                      className: 'w-full bg-slate-600 text-white rounded px-4 py-2'
-                    },
-                      React.createElement('option', { value: '' }, 'Select component to add...'),
-                      consumables.map(c => React.createElement('option', { key: c.id, value: c.id }, `${c.name}`))
-                    )
-                  ),
-                  React.createElement('div', { className: 'space-y-2' },
-                    newStringComponents.map((comp, idx) =>
-                      React.createElement('div', { key: idx, className: 'bg-slate-600/50 p-3 rounded flex justify-between items-center' },
-                        React.createElement('div', null, React.createElement('div', { className: 'font-bold text-blue-300' }, `${idx + 1}. ${comp.name}`), comp.photo && React.createElement('img', { src: comp.photo, className: 'w-16 h-16 mt-1 rounded object-cover' })),
-                        React.createElement('button', { onClick: () => setNewStringComponents(newStringComponents.filter((_, i) => i !== idx)), className: 'text-red-400 hover:text-red-300 font-bold' }, '✕')
-                      )
-                    )
-                  )
-                ),
-                React.createElement('button', { onClick: createDrillString, className: 'w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded font-bold text-lg' }, '✓ Create String')
-              ),
-              React.createElement('div', { className: 'lg:col-span-1' },
-                React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6 sticky top-6' },
-                  React.createElement('h4', { className: 'text-blue-400 font-bold mb-4' }, '👀 Preview'),
-                  React.createElement('div', { className: 'flex flex-col items-center gap-1 min-h-64' },
-                    newStringComponents.length === 0 && React.createElement('p', { className: 'text-gray-400 text-sm text-center' }, 'Add components to preview'),
-                    newStringComponents.map((comp, idx) => React.createElement('div', { key: idx, className: 'w-24 h-12 rounded text-xs text-center py-1 bg-gradient-to-b from-blue-600 to-blue-700 text-white font-bold shadow-lg flex items-center justify-center' }, comp.name.split(':')[0]))
-                  )
-                )
-              )
-            )
-          )
-        );
-      }
-
-      // ==================== ADD DRILL ====================
-      if (adminMode && showAddDrill) {
-        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
-          React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
-            React.createElement('div', { className: 'max-w-4xl mx-auto' },
-              React.createElement('button', { onClick: () => setShowAddDrill(false), className: 'bg-gray-600 text-white px-4 py-2 rounded' }, 'Back')
-            )
-          ),
-          React.createElement('div', { className: 'max-w-4xl mx-auto p-6' },
-            React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
-              React.createElement('h2', { className: 'text-2xl font-bold text-blue-400 mb-6' }, '➕ Add New Drill'),
-              React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-4' },
-                React.createElement('input', { type: 'text', placeholder: 'Drill ID', value: newDrillId, onChange: (e) => setNewDrillId(e.target.value), className: 'bg-slate-600 text-white rounded px-4 py-2' }),
-                React.createElement('select', { value: newDrillType, onChange: (e) => setNewDrillType(e.target.value), className: 'bg-slate-600 text-white rounded px-4 py-2' }, React.createElement('option', null, 'Epiroc D65'), React.createElement('option', null, 'CAT MD6250')),
-                React.createElement('input', { type: 'text', placeholder: 'Location', value: newDrillLocation, onChange: (e) => setNewDrillLocation(e.target.value), className: 'bg-slate-600 text-white rounded px-4 py-2' }),
-                React.createElement('div', null, React.createElement('label', { className: 'text-gray-300 block mb-2' }, '📸 Drill Photo'), React.createElement('input', { type: 'file', accept: 'image/*', onChange: (e) => handlePhotoUpload(e, 'drill'), className: 'block w-full text-white' }))
-              ),
-              newDrillPhoto && React.createElement('div', { className: 'mt-4' }, React.createElement('img', { src: newDrillPhoto, className: 'w-32 h-32 object-cover rounded' })),
-              React.createElement('button', { onClick: addDrill, className: 'w-full mt-4 bg-green-600 hover:bg-green-500 text-white py-2 rounded font-bold' }, '✓ Add Drill')
-            )
-          )
-        );
-      }
-
-      // ==================== ADMIN PANEL ====================
       if (adminMode) {
-        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white no-print' },
-          React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
-            React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between items-center' },
-              logoImage && React.createElement('img', { src: logoImage, className: 'logo-display' }),
-              React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⚙️ Admin Panel'),
-              React.createElement('button', { onClick: handleLogout, className: 'bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-bold' }, 'Logout')
-            )
-          ),
-          React.createElement('div', { className: 'max-w-7xl mx-auto p-6' },
-            React.createElement('div', { className: 'flex gap-2 mb-6 flex-wrap' },
-              React.createElement('button', { onClick: () => setAdminTab('strings'), className: `px-4 py-2 rounded font-bold ${adminTab === 'strings' ? 'bg-blue-600' : 'bg-slate-600'}` }, '⛓️ Strings'),
-              React.createElement('button', { onClick: () => setAdminTab('consumables'), className: `px-4 py-2 rounded font-bold ${adminTab === 'consumables' ? 'bg-blue-600' : 'bg-slate-600'}` }, `🧩 Consumables (${consumables.length})`),
-              React.createElement('button', { onClick: () => setAdminTab('drills'), className: `px-4 py-2 rounded font-bold ${adminTab === 'drills' ? 'bg-blue-600' : 'bg-slate-600'}` }, '⛏️ Drills'),
-              React.createElement('button', { onClick: () => setAdminTab('logo'), className: `px-4 py-2 rounded font-bold ${adminTab === 'logo' ? 'bg-blue-600' : 'bg-slate-600'}` }, '🎨 Logo')
+        return React.createElement('div', { style: { minHeight: '100vh', background: 'linear-gradient(to bottom right, #0f172a, #1e293b)', color: 'white', padding: '1.5rem' } },
+          React.createElement('div', { style: { maxWidth: '80rem', margin: '0 auto' } },
+            React.createElement('div', { style: { marginBottom: '2rem' } },
+              React.createElement('h1', { style: { fontSize: '1.875rem', fontWeight: 'bold', color: '#60a5fa', marginBottom: '1rem' } }, '⚙️ Admin Panel'),
+              React.createElement('button', { onClick: () => setAdminMode(false), style: { background: '#dc2626', color: 'white', padding: '0.5rem 1rem', borderRadius: '0.375rem', fontWeight: 'bold', border: 'none', cursor: 'pointer' } }, 'Logout')
             ),
-
-            // LOGO TAB
-            adminTab === 'logo' && React.createElement('div', { className: 'space-y-4' },
-              React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
-                React.createElement('h3', { className: 'text-xl font-bold text-blue-400 mb-4' }, '🎨 Company Logo'),
-                logoImage && React.createElement('div', { className: 'mb-4 p-4 bg-slate-600/50 rounded text-center' }, React.createElement('h4', { className: 'text-blue-300 font-bold mb-3' }, 'Current Logo:'), React.createElement('img', { src: logoImage, className: 'logo-display mx-auto mb-4' }), React.createElement('button', { onClick: removeLogo, className: 'bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-bold' }, '✕ Remove Logo')),
-                React.createElement('div', { className: 'border-2 border-dashed border-blue-500/50 rounded-lg p-6 text-center' }, React.createElement('input', { type: 'file', accept: 'image/*', onChange: handleLogoUpload, className: 'block w-full text-white mb-2' }))
-              )
-            ),
-
-            // STRINGS TAB
-            adminTab === 'strings' && React.createElement('div', { className: 'space-y-4' },
-              React.createElement('button', { onClick: () => setShowCreateString(true), className: 'w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-lg font-bold' }, '➕ Create New String'),
-              React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
-                React.createElement('h3', { className: 'text-xl font-bold text-blue-400 mb-4' }, '📋 Authorised Strings'),
-                Object.values(authorisedStrings).length === 0 ?
-                  React.createElement('p', { className: 'text-gray-400' }, 'No strings created')
-                  :
-                  React.createElement('div', { className: 'space-y-3' },
-                    Object.values(authorisedStrings).map((str) =>
-                      React.createElement('div', { key: str.id, className: 'bg-slate-600/50 p-4 rounded border border-slate-500' },
-                        React.createElement('div', { className: 'font-bold text-blue-300 mb-1' }, str.name),
-                        React.createElement('div', { className: 'text-xs text-gray-400' }, `Type: ${str.drillType} | ${str.components.length} components`),
-                        React.createElement('button', { onClick: () => { const newStrings = { ...authorisedStrings }; delete newStrings[str.id]; setAuthorisedStrings(newStrings); }, className: 'text-red-400 text-sm mt-2' }, '✕ Delete')
-                      )
-                    )
-                  )
-              )
-            ),
-
-            // CONSUMABLES TAB
-            adminTab === 'consumables' && React.createElement('div', { className: 'space-y-4' },
-              React.createElement('button', { onClick: () => setShowAddConsumable(true), className: 'w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-lg font-bold' }, '➕ Add New Item'),
-              React.createElement('div', { className: 'bg-blue-900/20 border border-blue-500/50 rounded-lg p-4 mb-4' },
-                React.createElement('p', { className: 'text-blue-300 text-sm' }, `✓ ${defaultConsumables.length} approved items | + ${consumables.length - defaultConsumables.length} custom items`)
-              ),
-              React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' },
+            React.createElement('div', { style: { background: 'linear-gradient(to bottom right, #1e293b, #0f172a)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '0.5rem', padding: '1.5rem' } },
+              React.createElement('h2', { style: { fontSize: '1.25rem', fontWeight: 'bold', color: '#60a5fa', marginBottom: '1rem' } }, '🧩 Consumables'),
+              React.createElement('p', { style: { color: '#9ca3af', marginBottom: '1.5rem' } }, `Total items: ${consumables.length}`),
+              React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' } },
                 consumables.map(cons =>
-                  React.createElement('div', { key: cons.id, className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-4' },
-                    cons.photo && React.createElement('img', { src: cons.photo, className: 'w-full h-32 object-cover rounded mb-2' }),
-                    React.createElement('div', { className: 'font-bold text-blue-300 text-sm' }, cons.name.length > 30 ? cons.name.substring(0, 30) + '...' : cons.name),
-                    React.createElement('div', { className: 'text-xs text-gray-400 mb-2' }, cons.category),
-                    React.createElement('div', { className: 'text-xs text-gray-500 space-y-1 mb-3' }, cons.weight && React.createElement('div', null, `Wt: ${cons.weight}kg`), cons.od && React.createElement('div', null, `OD: ${cons.od}mm`), cons.pinSize && React.createElement('div', null, `Pin: ${cons.pinSize.substring(0, 15)}`)),
-                    React.createElement('div', { className: 'flex gap-2' },
-                      React.createElement('button', { onClick: () => startEditConsumable(cons), className: 'flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs py-2 rounded' }, '✏️ Edit'),
-                      React.createElement('button', { onClick: () => removeConsumable(cons.id), className: 'flex-1 bg-red-600 hover:bg-red-500 text-white text-xs py-2 rounded' }, '✕ Remove')
+                  React.createElement('div', { key: cons.id, style: { background: 'linear-gradient(to bottom right, #334155, #1e293b)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '0.5rem', padding: '1rem' } },
+                    React.createElement('div', { style: { fontWeight: 'bold', color: '#60a5fa', marginBottom: '0.5rem' } }, cons.name),
+                    React.createElement('div', { style: { fontSize: '0.875rem', color: '#9ca3af', marginBottom: '0.5rem' } }, cons.category),
+                    React.createElement('div', { style: { fontSize: '0.875rem', color: '#6b7280' } },
+                      cons.weight ? `Weight: ${cons.weight}kg` : '',
+                      React.createElement('br'),
+                      cons.od ? `OD: ${cons.od}mm` : ''
                     )
                   )
                 )
               )
-            ),
-
-            // DRILLS TAB
-            adminTab === 'drills' && React.createElement('div', { className: 'space-y-4' },
-              React.createElement('button', { onClick: () => setShowAddDrill(true), className: 'w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-lg font-bold' }, '➕ Add Drill'),
-              React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' },
-                Object.entries(drills).map(([rigId, drill]) =>
-                  React.createElement('div', { key: rigId, className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-4' },
-                    drill.photo && React.createElement('img', { src: drill.photo, className: 'w-full h-32 object-cover rounded mb-2' }),
-                    React.createElement('div', { className: 'font-bold text-blue-300 text-lg' }, rigId),
-                    React.createElement('div', { className: 'text-xs text-gray-400 space-y-1' }, React.createElement('div', null, `Type: ${drill.type}`), React.createElement('div', null, `Location: ${drill.location}`)),
-                    React.createElement('div', { className: 'mt-2' }, React.createElement('label', { className: 'text-gray-300 block mb-1 text-xs' }, 'Update photo:'), React.createElement('input', { type: 'file', accept: 'image/*', onChange: (e) => handleDrillPhotoUpload(rigId, e), className: 'block w-full text-white text-xs' })),
-                    React.createElement('button', { onClick: () => removeDrill(rigId), className: 'text-red-400 text-sm mt-2' }, '✕ Remove Drill')
-                  )
-                )
-              )
             )
           )
         );
       }
 
-      // ==================== FLEET DASHBOARD ====================
-      if (currentPage === 'fleet') {
-        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white no-print' },
-          React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4 sticky top-0' },
-            React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between items-center' },
-              React.createElement('div', { className: 'flex items-center gap-4' }, logoImage && React.createElement('img', { src: logoImage, className: 'logo-display' }), React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⛏️ Drill Rig Management')),
-              React.createElement('button', { onClick: () => setShowLoginPrompt(true), className: 'bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-bold' }, '🔓 Admin')
-            )
+      return React.createElement('div', { style: { minHeight: '100vh', background: 'linear-gradient(to bottom right, #0f172a, #1e293b)', color: 'white', padding: '1.5rem' } },
+        React.createElement('div', { style: { maxWidth: '80rem', margin: '0 auto' } },
+          React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' } },
+            React.createElement('h1', { style: { fontSize: '2rem', fontWeight: 'bold', color: '#60a5fa' } }, '⛏️ Drill Rig Management'),
+            React.createElement('button', { onClick: () => setShowLoginPrompt(true), style: { background: '#dc2626', color: 'white', padding: '0.5rem 1rem', borderRadius: '0.375rem', fontWeight: 'bold', border: 'none', cursor: 'pointer' } }, '🔓 Admin')
           ),
-          React.createElement('div', { className: 'max-w-7xl mx-auto p-6' },
-            React.createElement('h2', { className: 'text-3xl font-bold text-blue-400 mb-6' }, '📊 Fleet Dashboard - Pilgangoora'),
-            React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' },
-              Object.entries(drills).map(([rigId, drill]) =>
-                React.createElement('div', { key: rigId, onClick: () => { setSelectedRig(rigId); setCurrentPage('detail'); }, className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-4 cursor-pointer hover:border-blue-400 hover:shadow-lg transition' },
-                  drill.photo && React.createElement('img', { src: drill.photo, className: 'w-full h-40 object-cover rounded mb-2' }),
-                  React.createElement('div', { className: 'font-bold text-blue-400 text-lg' }, rigId),
-                  React.createElement('div', { className: 'space-y-1 text-sm text-gray-300' }, React.createElement('div', null, `Type: ${drill.type}`), React.createElement('div', null, `Location: ${drill.location}`), React.createElement('div', { className: drill.status === 'Active' ? 'text-green-400' : 'text-yellow-400' }, `Status: ${drill.status}`), React.createElement('div', { className: 'text-blue-300 font-bold' }, `Hours: ${drill.hours.toLocaleString()}`)),
-                  rigStringAssignments[rigId] && React.createElement('div', { className: 'mt-2 pt-2 border-t border-gray-600 text-xs text-green-400 font-bold' }, '✓ String assigned'),
-                  React.createElement('div', { className: 'mt-3 text-xs text-gray-400' }, '→ Click to manage')
-                )
-              )
-            )
+          React.createElement('div', { style: { background: 'linear-gradient(to bottom right, #1e293b, #0f172a)', border: '2px solid rgba(34, 197, 94, 0.3)', borderRadius: '0.5rem', padding: '2rem', textAlign: 'center' } },
+            React.createElement('h2', { style: { fontSize: '1.5rem', color: '#22c55e', marginBottom: '1rem' } }, '✓ System Online'),
+            React.createElement('p', { style: { color: '#d1d5db', marginBottom: '1rem' } }, `Consumables loaded: ${consumables.length} items`),
+            React.createElement('p', { style: { color: '#9ca3af' } }, 'Click "Admin" to manage items and create drill strings')
           )
-        );
-      }
-
-      // ==================== RIG DETAIL ====================
-      if (currentPage === 'detail') {
-        const drill = drills[selectedRig];
-        const assignedStringId = rigStringAssignments[selectedRig];
-        const assignedString = assignedStringId ? authorisedStrings[assignedStringId] : null;
-        const availableStrings = Object.values(authorisedStrings).filter(s => s.drillType === drill.type);
-
-        return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
-          React.createElement('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4 sticky top-0 no-print' },
-            React.createElement('div', { className: 'max-w-7xl mx-auto flex justify-between items-center' },
-              React.createElement('div', { className: 'flex items-center gap-4' }, logoImage && React.createElement('img', { src: logoImage, className: 'logo-display' }), React.createElement('h1', { className: 'text-2xl font-bold text-blue-400' }, '⛏️ Drill Rig Management')),
-              React.createElement('button', { onClick: () => setShowLoginPrompt(true), className: 'bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-bold' }, '🔓 Admin')
-            )
-          ),
-
-          // PRINT LAYOUT
-          assignedString && React.createElement('div', { className: 'print-only w-full' },
-            React.createElement('div', { className: 'p-8 bg-white text-black' },
-              React.createElement('div', { className: 'flex justify-between items-start mb-6' }, logoImage && React.createElement('img', { src: logoImage, className: 'logo-print' }), React.createElement('div', { className: 'text-right' }, React.createElement('h1', { className: 'text-3xl font-bold mb-2' }, selectedRig), React.createElement('h2', { className: 'text-xl text-gray-700 mb-1' }, 'Authorised Drill String'), React.createElement('p', { className: 'text-gray-600 font-bold' }, assignedString.name))),
-              React.createElement('div', { className: 'border-4 border-black mb-6 p-4' }, React.createElement('p', { className: 'text-sm' }, `Drill Type: ${assignedString.drillType} | Date: ${new Date().toLocaleDateString()}`)),
-              React.createElement('div', { className: 'grid grid-cols-3 gap-8' },
-                React.createElement('div', { className: 'col-span-1 border-r-4 border-black pr-8' }, React.createElement('h3', { className: 'text-lg font-bold mb-4 text-center border-b-2 border-black pb-2' }, 'Drill String Assembly'), React.createElement('div', { className: 'flex flex-col items-center gap-1' }, assignedString.components.map((comp, idx) => React.createElement('div', { key: idx, className: 'w-32 border-3 border-black bg-gray-200 text-center py-3 text-xs font-bold h-16 flex items-center justify-center' }, comp.name.substring(0, 20))))),
-                React.createElement('div', { className: 'col-span-2' }, React.createElement('h3', { className: 'text-lg font-bold mb-3 border-b-2 border-black pb-2' }, 'Component Details'), React.createElement('table', { className: 'w-full border-collapse text-sm' }, React.createElement('thead', null, React.createElement('tr', { className: 'bg-gray-300' }, React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Component'), React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'PN'), React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Wt'), React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'OD'), React.createElement('th', { className: 'border-2 border-black p-1 text-left' }, 'Pin/Box'))), React.createElement('tbody', null, assignedString.components.map((comp, idx) => React.createElement('tr', { key: idx, className: idx % 2 === 0 ? 'bg-white' : 'bg-gray-100' }, React.createElement('td', { className: 'border-2 border-black p-1 font-bold text-xs' }, comp.name.substring(0, 18)), React.createElement('td', { className: 'border-2 border-black p-1 text-xs' }, comp.partNumber || '-'), React.createElement('td', { className: 'border-2 border-black p-1 text-xs' }, comp.weight || '-'), React.createElement('td', { className: 'border-2 border-black p-1 text-xs' }, comp.od ? `${comp.od}` : '-'), React.createElement('td', { className: 'border-2 border-black p-1 text-xs' }, `${comp.pinSize ? comp.pinSize.substring(0, 8) : ''} / ${comp.boxSize ? comp.boxSize.substring(0, 8) : ''}`)))))
-              ),
-              React.createElement('div', { className: 'mt-8 border-t-4 border-black pt-4 text-center text-sm' }, React.createElement('p', null, '✓ Post at drill laydown - No Confusion!'), React.createElement('p', { className: 'text-gray-600' }, `Printed: ${new Date().toLocaleString()}`))
-            )
-          ),
-
-          // EDIT MODE
-          React.createElement('div', { className: 'max-w-7xl mx-auto p-6 no-print' },
-            React.createElement('button', { onClick: () => setCurrentPage('fleet'), className: 'bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-bold mb-6' }, '← Back to Fleet'),
-            React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-3 gap-6' },
-              React.createElement('div', { className: 'space-y-4' }, React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' }, drill.photo && React.createElement('img', { src: drill.photo, className: 'w-full h-40 object-cover rounded mb-4' }), React.createElement('h2', { className: 'text-3xl font-bold text-blue-400 mb-4' }, selectedRig), React.createElement('div', { className: 'space-y-3 text-gray-300' }, React.createElement('div', null, React.createElement('span', { className: 'text-gray-400 font-bold' }, 'Type: '), drill.type), React.createElement('div', null, React.createElement('span', { className: 'text-gray-400 font-bold' }, 'Location: '), drill.location), React.createElement('div', { className: 'text-lg font-bold', style: { color: drill.status === 'Active' ? '#4ade80' : '#eab308' } }, `Status: ${drill.status}`), React.createElement('div', { className: 'text-lg text-green-400 font-bold' }, `Hours: ${drill.hours.toLocaleString()}`)))),
-              React.createElement('div', { className: 'lg:col-span-2' }, React.createElement('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' }, React.createElement('h3', { className: 'text-2xl font-bold text-blue-400 mb-6' }, '⛓️ Authorised Drill String'), assignedString ? React.createElement('div', null, React.createElement('div', { className: 'mb-4 p-4 bg-green-900/20 border border-green-500/30 rounded' }, React.createElement('div', { className: 'text-green-400 font-bold mb-3' }, `✓ Current: ${assignedString.name}`), React.createElement('div', { className: 'flex gap-2' }, React.createElement('button', { onClick: () => window.print(), className: 'bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded' }, '🖨️ Print String'), React.createElement('button', { onClick: () => { const newAssignments = { ...rigStringAssignments }; delete newAssignments[selectedRig]; setRigStringAssignments(newAssignments); }, className: 'bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded' }, 'Remove String'))), React.createElement('div', { className: 'bg-slate-600/30 rounded p-8 mb-4' }, React.createElement('div', { className: 'flex flex-col items-center gap-1 min-h-96' }, assignedString.components.map((comp, idx) => React.createElement('div', { key: idx, className: 'component-tile w-28 rounded text-xs text-center py-4 bg-gradient-to-b from-blue-600 to-blue-700 text-white font-bold shadow-lg flex flex-col items-center justify-center' }, comp.photo && React.createElement('img', { src: comp.photo, className: 'w-20 h-20 object-cover rounded mb-1' }), React.createElement('span', null, comp.name.split(':')[0]))))) : React.createElement('div', null, React.createElement('p', { className: 'text-gray-400 mb-4' }, 'No drill string assigned. Select one:'), React.createElement('div', { className: 'space-y-2' }, availableStrings.length === 0 ? React.createElement('p', { className: 'text-gray-500 text-sm' }, 'No strings available for this drill type. Create one in admin.') : availableStrings.map((str) => React.createElement('button', { key: str.id, onClick: () => assignStringToRig(str.id), className: 'w-full text-left bg-slate-600 hover:bg-blue-600 p-3 rounded transition' }, React.createElement('div', { className: 'font-bold text-blue-300' }, str.name), React.createElement('div', { className: 'text-xs text-gray-400' }, `${str.components.length} components`)))))))
-            )
-          )
-        );
-      }
-
-      return React.createElement('div', { className: 'min-h-screen bg-slate-900 flex items-center justify-center' }, React.createElement('p', { className: 'text-white' }, 'Loading...'));
+        )
+      );
     }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
+    const root = createRoot(document.getElementById('root'));
     root.render(React.createElement(App));
   </script>
 </body>
