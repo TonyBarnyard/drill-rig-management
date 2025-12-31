@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drill Rig Management System</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    const { useState, useEffect } = React;
+    const e = React.createElement;
+
+    const DrillRigManagementSystem = () => {
+      const [currentPage, setCurrentPage] = useState('fleet');
+      const [selectedRig, setSelectedRig] = useState('DR201');
+      const [adminMode, setAdminMode] = useState(false);
+      const [adminLoginAttempt, setAdminLoginAttempt] = useState('');
+      const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+      const [showForgotPassword, setShowForgotPassword] = useState(false);
+      const [showSetupSecurity, setShowSetupSecurity] = useState(false);
+
+      const [securitySetup, setSecuritySetup] = useState(() => {
+        const saved = localStorage.getItem('adminSecuritySetup');
+        return saved ? JSON.parse(saved) : { 
+          setupComplete: false,
+          securityQuestion: '', 
+          securityAnswer: '',
+          recoveryCode: '',
+          email: ''
+        };
+      });
+
+      const [recoveryAttempt, setRecoveryAttempt] = useState({
+        securityAnswer: '',
+        recoveryCode: ''
+      });
+
+      const [recoveryStep, setRecoveryStep] = useState(1);
+      const [newPasswordSetup, setNewPasswordSetup] = useState('');
+      const [confirmPasswordSetup, setConfirmPasswordSetup] = useState('');
+      const [adminPassword, setAdminPassword] = useState('admin123');
+
+      const fleet = {
+        'DR201': { model: 'D65', location: 'Collar Zone', type: 'D65', status: 'Active', hoursRunning: 2847 },
+        'DR202': { model: 'D65', location: 'Overburden', type: 'D65', status: 'Active', hoursRunning: 2934 },
+        'DR203': { model: 'D65', location: 'Production', type: 'D65', status: 'Active', hoursRunning: 3102 },
+        'DR204': { model: 'D65', location: 'Production', type: 'D65', status: 'Active', hoursRunning: 2756 },
+        'DR205': { model: 'D65', location: 'Production', type: 'D65', status: 'Standby', hoursRunning: 1829 },
+        'DR206': { model: 'D65', location: 'Production', type: 'D65', status: 'Active', hoursRunning: 2645 },
+        'DR207': { model: 'D65', location: 'Wall Control', type: 'D65', status: 'Active', hoursRunning: 2234 },
+        'DR208': { model: 'D65', location: 'Production', type: 'D65', status: 'Active', hoursRunning: 2987 },
+        'DR209': { model: 'D65', location: 'Production', type: 'D65', status: 'Active', hoursRunning: 3045 },
+        'DR210': { model: 'D65', location: 'Deep Prod', type: 'D65', status: 'Active', hoursRunning: 2123 },
+        'DR211': { model: 'D65', location: 'Production', type: 'D65', status: 'Active', hoursRunning: 2876 },
+        'DR212': { model: 'D65', location: 'Production', type: 'D65', status: 'Active', hoursRunning: 2645 },
+        'DR213': { model: 'D65', location: 'Production', type: 'D65', status: 'Active', hoursRunning: 2734 },
+        'DR214': { model: 'D65', location: 'Wall Control', type: 'D65', status: 'Maintenance', hoursRunning: 1456 },
+      };
+
+      const generateRecoveryCode = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let code = '';
+        for (let i = 0; i < 32; i++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+      };
+
+      const handleAdminLogin = () => {
+        if (adminLoginAttempt === adminPassword) {
+          setAdminMode(true);
+          setShowPasswordPrompt(false);
+          setAdminLoginAttempt('');
+        } else {
+          alert('❌ Incorrect password');
+          setAdminLoginAttempt('');
+        }
+      };
+
+      const handleLogout = () => {
+        setAdminMode(false);
+        setAdminPassword('admin123');
+      };
+
+      const initializeSecurityQuestions = () => {
+        if (!securitySetup.securityQuestion || !securitySetup.securityAnswer) {
+          alert('❌ Please enter a security question and answer');
+          return;
+        }
+        const code = generateRecoveryCode();
+        setSecuritySetup({
+          setupComplete: true,
+          securityQuestion: securitySetup.securityQuestion,
+          securityAnswer: securitySetup.securityAnswer.toLowerCase(),
+          recoveryCode: code,
+          email: securitySetup.email || ''
+        });
+        alert(`✓ Security setup complete!\n\nRecovery Code:\n${code}\n\nSave this code safely!`);
+        setShowSetupSecurity(false);
+      };
+
+      const handleForgotPassword = () => {
+        if (recoveryStep === 1) {
+          if (recoveryAttempt.securityAnswer.toLowerCase() === securitySetup.securityAnswer) {
+            setRecoveryStep(2);
+          } else {
+            alert('❌ Incorrect answer');
+          }
+        } else if (recoveryStep === 2) {
+          if (recoveryAttempt.recoveryCode === securitySetup.recoveryCode) {
+            setRecoveryStep(3);
+          } else {
+            alert('❌ Incorrect recovery code');
+          }
+        } else if (recoveryStep === 3) {
+          if (newPasswordSetup === confirmPasswordSetup && newPasswordSetup.length >= 6) {
+            setAdminPassword(newPasswordSetup);
+            alert('✓ Password reset successfully!');
+            setShowForgotPassword(false);
+            setRecoveryStep(1);
+            setNewPasswordSetup('');
+            setConfirmPasswordSetup('');
+            setRecoveryAttempt({ securityAnswer: '', recoveryCode: '' });
+          } else {
+            alert('❌ Passwords must match and be at least 6 characters');
+          }
+        }
+      };
+
+      useEffect(() => {
+        localStorage.setItem('adminSecuritySetup', JSON.stringify(securitySetup));
+      }, [securitySetup]);
+
+      // Fleet Dashboard
+      const FleetDashboard = () => {
+        return e('div', { className: 'space-y-4' },
+          e('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' },
+            Object.entries(fleet).map(([rigId, rig]) =>
+              e('div', { 
+                key: rigId,
+                className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-4 cursor-pointer hover:border-blue-500 transition',
+                onClick: () => { setSelectedRig(rigId); setCurrentPage('rig'); }
+              },
+                e('div', { className: 'font-bold text-blue-400 text-lg mb-2' }, rigId),
+                e('div', { className: 'space-y-1 text-sm text-gray-300' },
+                  e('div', null, `Model: ${rig.model}`),
+                  e('div', null, `Location: ${rig.location}`),
+                  e('div', null, `Status: ${rig.status}`),
+                  e('div', { className: rig.status === 'Active' ? 'text-green-400' : 'text-yellow-400' }, 
+                    `Hours: ${rig.hoursRunning.toLocaleString()}`)
+                )
+              )
+            )
+          )
+        );
+      };
+
+      // Rig Detail Page
+      const RigDetail = () => {
+        return e('div', { className: 'space-y-4' },
+          e('button', {
+            className: 'bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-bold',
+            onClick: () => setCurrentPage('fleet')
+          }, '← Back to Fleet'),
+          e('div', { className: 'bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/30 rounded-lg p-6' },
+            e('h2', { className: 'text-2xl font-bold text-blue-400 mb-4' }, `${selectedRig} Details`),
+            e('div', { className: 'space-y-2 text-gray-300' },
+              e('p', null, `Model: ${fleet[selectedRig]?.model}`),
+              e('p', null, `Location: ${fleet[selectedRig]?.location}`),
+              e('p', null, `Status: ${fleet[selectedRig]?.status}`),
+              e('p', null, `Hours: ${fleet[selectedRig]?.hoursRunning}`)
+            )
+          )
+        );
+      };
+
+      // Admin Mode
+      const AdminPanel = () => {
+        return e('div', { className: 'space-y-4' },
+          e('div', { className: 'bg-gradient-to-br from-red-900 to-red-800 border border-red-500/30 rounded-lg p-6' },
+            e('h2', { className: 'text-2xl font-bold text-red-400 mb-4' }, '⚙️ Admin Settings'),
+            e('div', { className: 'space-y-4' },
+              !securitySetup.setupComplete && e('div', { className: 'bg-yellow-900/20 border border-yellow-500/30 p-4 rounded' },
+                e('p', { className: 'text-yellow-400 mb-2 font-bold' }, '⚠️ Security Not Setup'),
+                e('button', {
+                  className: 'w-full bg-yellow-600 hover:bg-yellow-500 text-white py-2 rounded font-bold',
+                  onClick: () => setShowSetupSecurity(true)
+                }, '🔐 Setup Security Questions')
+              ),
+              securitySetup.setupComplete && e('div', { className: 'bg-green-900/20 border border-green-500/30 p-4 rounded' },
+                e('p', { className: 'text-green-400 font-bold' }, '✓ Security Setup Complete')
+              ),
+              e('button', {
+                className: 'w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold',
+                onClick: handleLogout
+              }, '🚪 Logout')
+            )
+          )
+        );
+      };
+
+      // Password Prompt
+      if (showPasswordPrompt) {
+        return e('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4' },
+          e('div', { className: 'bg-gradient-to-br from-slate-800 to-slate-900 border border-red-500/30 rounded-lg p-8 max-w-md w-full' },
+            e('h2', { className: 'text-2xl font-bold text-red-400 mb-6 text-center' }, 'Admin Login'),
+            e('input', {
+              type: 'password',
+              placeholder: 'Enter admin password',
+              value: adminLoginAttempt,
+              onChange: (evt) => setAdminLoginAttempt(evt.target.value),
+              onKeyPress: (evt) => evt.key === 'Enter' && handleAdminLogin(),
+              className: 'w-full bg-slate-600 text-white rounded px-3 py-2 mb-4 text-center'
+            }),
+            e('div', { className: 'space-y-2' },
+              e('button', {
+                className: 'w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold',
+                onClick: handleAdminLogin
+              }, '✓ Login'),
+              e('button', {
+                className: 'w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-bold',
+                onClick: () => setShowForgotPassword(true)
+              }, '🔑 Forgot Password'),
+              e('button', {
+                className: 'w-full bg-gray-600 hover:bg-gray-500 text-white py-2 rounded font-bold',
+                onClick: () => setShowPasswordPrompt(false)
+              }, '✕ Cancel')
+            )
+          )
+        );
+      }
+
+      // Forgot Password Flow
+      if (showForgotPassword) {
+        return e('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4' },
+          e('div', { className: 'bg-gradient-to-br from-slate-800 to-slate-900 border border-yellow-500/30 rounded-lg p-8 max-w-md w-full' },
+            e('h2', { className: 'text-2xl font-bold text-yellow-400 mb-4 text-center' }, `Forgot Password - Step ${recoveryStep}/3`),
+            recoveryStep === 1 && e('div', { className: 'space-y-4' },
+              e('p', { className: 'text-gray-300 mb-4' }, securitySetup.securityQuestion),
+              e('input', {
+                type: 'text',
+                placeholder: 'Your answer',
+                value: recoveryAttempt.securityAnswer,
+                onChange: (evt) => setRecoveryAttempt({...recoveryAttempt, securityAnswer: evt.target.value}),
+                className: 'w-full bg-slate-600 text-white rounded px-3 py-2'
+              })
+            ),
+            recoveryStep === 2 && e('div', { className: 'space-y-4' },
+              e('p', { className: 'text-gray-300 mb-4' }, 'Enter your recovery code'),
+              e('input', {
+                type: 'text',
+                placeholder: 'Recovery code',
+                value: recoveryAttempt.recoveryCode,
+                onChange: (evt) => setRecoveryAttempt({...recoveryAttempt, recoveryCode: evt.target.value}),
+                className: 'w-full bg-slate-600 text-white rounded px-3 py-2'
+              })
+            ),
+            recoveryStep === 3 && e('div', { className: 'space-y-4' },
+              e('input', {
+                type: 'password',
+                placeholder: 'New password',
+                value: newPasswordSetup,
+                onChange: (evt) => setNewPasswordSetup(evt.target.value),
+                className: 'w-full bg-slate-600 text-white rounded px-3 py-2 mb-2'
+              }),
+              e('input', {
+                type: 'password',
+                placeholder: 'Confirm password',
+                value: confirmPasswordSetup,
+                onChange: (evt) => setConfirmPasswordSetup(evt.target.value),
+                className: 'w-full bg-slate-600 text-white rounded px-3 py-2'
+              })
+            ),
+            e('div', { className: 'space-y-2 mt-4' },
+              e('button', {
+                className: 'w-full bg-yellow-600 hover:bg-yellow-500 text-white py-2 rounded font-bold',
+                onClick: handleForgotPassword
+              }, 'Next'),
+              e('button', {
+                className: 'w-full bg-gray-600 hover:bg-gray-500 text-white py-2 rounded font-bold',
+                onClick: () => { setShowForgotPassword(false); setRecoveryStep(1); }
+              }, 'Cancel')
+            )
+          )
+        );
+      }
+
+      // Setup Security
+      if (showSetupSecurity) {
+        return e('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4' },
+          e('div', { className: 'bg-gradient-to-br from-slate-800 to-slate-900 border border-blue-500/30 rounded-lg p-8 max-w-md w-full' },
+            e('h2', { className: 'text-2xl font-bold text-blue-400 mb-6' }, '🔐 Setup Security'),
+            e('div', { className: 'space-y-4' },
+              e('input', {
+                type: 'text',
+                placeholder: 'Security question (e.g. Favorite color?)',
+                value: securitySetup.securityQuestion,
+                onChange: (evt) => setSecuritySetup({...securitySetup, securityQuestion: evt.target.value}),
+                className: 'w-full bg-slate-600 text-white rounded px-3 py-2'
+              }),
+              e('input', {
+                type: 'text',
+                placeholder: 'Your answer',
+                value: securitySetup.securityAnswer,
+                onChange: (evt) => setSecuritySetup({...securitySetup, securityAnswer: evt.target.value}),
+                className: 'w-full bg-slate-600 text-white rounded px-3 py-2'
+              }),
+              e('button', {
+                className: 'w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-bold',
+                onClick: initializeSecurityQuestions
+              }, '✓ Setup'),
+              e('button', {
+                className: 'w-full bg-gray-600 hover:bg-gray-500 text-white py-2 rounded font-bold',
+                onClick: () => setShowSetupSecurity(false)
+              }, 'Cancel')
+            )
+          )
+        );
+      }
+
+      // Main Layout
+      return e('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white' },
+        e('nav', { className: 'bg-slate-900 border-b border-blue-500/30 p-4' },
+          e('div', { className: 'max-w-7xl mx-auto flex items-center justify-between' },
+            e('h1', { className: 'text-2xl font-bold text-blue-400' }, 'Drill Rig Management'),
+            e('button', {
+              className: 'bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-bold',
+              onClick: () => setShowPasswordPrompt(true)
+            }, '🔓 Admin')
+          )
+        ),
+        e('div', { className: 'max-w-7xl mx-auto p-4' },
+          adminMode ? e(AdminPanel) :
+          currentPage === 'fleet' ? e(FleetDashboard) :
+          e(RigDetail)
+        )
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(DrillRigManagementSystem));
+  </script>
+</body>
+</html>
