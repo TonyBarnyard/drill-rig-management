@@ -603,39 +603,50 @@
                   React.createElement('p', { style: { margin: '0' } }, new Date().toLocaleDateString())
                 )
               ),
-              React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '10mm' } },
-                // LEFT COLUMN - COMPONENT STACK
+              // DRILL PHOTO SECTION
+              drill.photo && React.createElement('div', { style: { marginBottom: '10mm', textAlign: 'center', paddingBottom: '10mm', borderBottom: '1px solid #cccccc' } },
+                React.createElement('h3', { style: { margin: '0 0 5mm 0', fontSize: '12px', fontWeight: 'bold' } }, 'DRILL RIG'),
+                React.createElement('img', { src: drill.photo, style: { maxWidth: '100%', maxHeight: '100mm', objectFit: 'contain' } })
+              ),
+              // COMPONENTS AND TABLE
+              React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10mm' } },
+                // LEFT COLUMN - COMPONENT PHOTOS AND STACK
                 React.createElement('div', null,
                   React.createElement('h3', { style: { margin: '0 0 5mm 0', fontSize: '13px', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '3mm' } }, 'DRILL STRING ASSEMBLY'),
-                  React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '2mm' } },
+                  React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '4mm' } },
                     assignedString.components.map((comp, idx) =>
-                      React.createElement('div', { key: idx, style: { border: '1px solid black', padding: '3mm', textAlign: 'center', fontSize: '9px', fontWeight: 'bold', minHeight: '25mm', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
-                        `${idx + 1}. ${comp.name.substring(0, 25)}`
+                      React.createElement('div', { key: idx, style: { border: '1px solid black', padding: '3mm', textAlign: 'center', fontSize: '8px', fontWeight: 'bold' } },
+                        React.createElement('div', { style: { marginBottom: '2mm' } }, `${idx + 1}. ${comp.name.substring(0, 20)}`),
+                        comp.photo ?
+                          React.createElement('img', { src: comp.photo, style: { maxWidth: '100%', maxHeight: '40mm', objectFit: 'contain', marginBottom: '2mm' } })
+                          :
+                          React.createElement('div', { style: { width: '100%', height: '40mm', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2mm', fontSize: '7px' } }, 'No photo'),
+                        React.createElement('div', { style: { fontSize: '7px', color: '#666' } }, `${comp.weight}kg`)
                       )
                     )
                   )
                 ),
-                // RIGHT COLUMN - COMPONENT DETAILS
+                // RIGHT COLUMN - COMPONENT DETAILS TABLE
                 React.createElement('div', null,
                   React.createElement('h3', { style: { margin: '0 0 5mm 0', fontSize: '13px', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '3mm' } }, 'COMPONENT SPECIFICATIONS'),
-                  React.createElement('table', { style: { width: '100%', borderCollapse: 'collapse', fontSize: '9px' } },
+                  React.createElement('table', { style: { width: '100%', borderCollapse: 'collapse', fontSize: '8px' } },
                     React.createElement('thead', null,
                       React.createElement('tr', { style: { backgroundColor: '#e0e0e0' } },
-                        React.createElement('th', { style: { border: '1px solid black', padding: '2mm', textAlign: 'left', fontSize: '8px' } }, 'Component'),
-                        React.createElement('th', { style: { border: '1px solid black', padding: '2mm', textAlign: 'left', fontSize: '8px' } }, 'PN'),
-                        React.createElement('th', { style: { border: '1px solid black', padding: '2mm', textAlign: 'center', fontSize: '8px' } }, 'Wt'),
-                        React.createElement('th', { style: { border: '1px solid black', padding: '2mm', textAlign: 'center', fontSize: '8px' } }, 'OD'),
-                        React.createElement('th', { style: { border: '1px solid black', padding: '2mm', textAlign: 'left', fontSize: '8px' } }, 'Pin/Box')
+                        React.createElement('th', { style: { border: '1px solid black', padding: '1.5mm', textAlign: 'left', fontSize: '7px' } }, 'Component'),
+                        React.createElement('th', { style: { border: '1px solid black', padding: '1.5mm', textAlign: 'left', fontSize: '7px' } }, 'PN'),
+                        React.createElement('th', { style: { border: '1px solid black', padding: '1.5mm', textAlign: 'center', fontSize: '7px' } }, 'Wt'),
+                        React.createElement('th', { style: { border: '1px solid black', padding: '1.5mm', textAlign: 'center', fontSize: '7px' } }, 'OD'),
+                        React.createElement('th', { style: { border: '1px solid black', padding: '1.5mm', textAlign: 'left', fontSize: '7px' } }, 'Pin/Box')
                       )
                     ),
                     React.createElement('tbody', null,
                       assignedString.components.map((comp, idx) =>
                         React.createElement('tr', { key: idx, style: { backgroundColor: idx % 2 === 0 ? 'white' : '#f5f5f5' } },
-                          React.createElement('td', { style: { border: '1px solid black', padding: '2mm', fontSize: '8px', maxWidth: '60mm', overflow: 'hidden', textOverflow: 'ellipsis' } }, comp.name.substring(0, 20)),
-                          React.createElement('td', { style: { border: '1px solid black', padding: '2mm', fontSize: '8px' } }, comp.partNumber || '-'),
-                          React.createElement('td', { style: { border: '1px solid black', padding: '2mm', fontSize: '8px', textAlign: 'center' } }, comp.weight || '-'),
-                          React.createElement('td', { style: { border: '1px solid black', padding: '2mm', fontSize: '8px', textAlign: 'center' } }, comp.od ? `${comp.od}` : '-'),
-                          React.createElement('td', { style: { border: '1px solid black', padding: '2mm', fontSize: '7px' } }, `${comp.pinSize ? comp.pinSize.substring(0, 6) : ''} / ${comp.boxSize ? comp.boxSize.substring(0, 6) : ''}`)
+                          React.createElement('td', { style: { border: '1px solid black', padding: '1.5mm', fontSize: '7px', maxWidth: '35mm', overflow: 'hidden', textOverflow: 'ellipsis' } }, comp.name.substring(0, 15)),
+                          React.createElement('td', { style: { border: '1px solid black', padding: '1.5mm', fontSize: '7px' } }, comp.partNumber || '-'),
+                          React.createElement('td', { style: { border: '1px solid black', padding: '1.5mm', fontSize: '7px', textAlign: 'center' } }, comp.weight || '-'),
+                          React.createElement('td', { style: { border: '1px solid black', padding: '1.5mm', fontSize: '7px', textAlign: 'center' } }, comp.od ? `${comp.od}` : '-'),
+                          React.createElement('td', { style: { border: '1px solid black', padding: '1.5mm', fontSize: '6px' } }, `${comp.pinSize ? comp.pinSize.substring(0, 5) : ''} / ${comp.boxSize ? comp.boxSize.substring(0, 5) : ''}`)
                         )
                       )
                     )
